@@ -49,15 +49,15 @@ atardecer. SEO no es prioritario; sólo se implementa lo técnico imprescindible
 
 ## Stack tecnológico
 
-| Capa | Tecnología | Motivo |
-|---|---|---|
-| Framework | **Astro 5** (`output: static` + adaptador Vercel para las rutas `/api`) | HTML estático, JS mínimo, i18n nativo, imágenes optimizadas |
-| Estilos | **Tailwind CSS v4** (`@tailwindcss/vite`) + tokens en `src/styles/global.css` | Mobile-first, sistema de diseño consistente |
-| Interactividad | `<script>` vanilla en componentes Astro (sin framework de UI) | Menú móvil, selector de idioma, FAQ, galería, botón flotante |
-| CMS | **Sanity** (Studio en `studio/`) | Contenido estructurado bilingüe, Studio gratuito, webhooks |
-| Galería | **Instagram Graph API** (Instagram API with Instagram Login) vía `/api/instagram` | Fuente oficial; fallback manual en el CMS |
-| Hosting | **Vercel** | Deploy desde Git, cron functions, variables de entorno, SSL |
-| Lenguaje | TypeScript | — |
+| Capa           | Tecnología                                                                        | Motivo                                                       |
+| -------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Framework      | **Astro 5** (`output: static` + adaptador Vercel para las rutas `/api`)           | HTML estático, JS mínimo, i18n nativo, imágenes optimizadas  |
+| Estilos        | **Tailwind CSS v4** (`@tailwindcss/vite`) + tokens en `src/styles/global.css`     | Mobile-first, sistema de diseño consistente                  |
+| Interactividad | `<script>` vanilla en componentes Astro (sin framework de UI)                     | Menú móvil, selector de idioma, FAQ, galería, botón flotante |
+| CMS            | **Sanity** (Studio en `studio/`)                                                  | Contenido estructurado bilingüe, Studio gratuito, webhooks   |
+| Galería        | **Instagram Graph API** (Instagram API with Instagram Login) vía `/api/instagram` | Fuente oficial; fallback manual en el CMS                    |
+| Hosting        | **Vercel**                                                                        | Deploy desde Git, cron functions, variables de entorno, SSL  |
+| Lenguaje       | TypeScript                                                                        | —                                                            |
 
 ## Arquitectura general
 
@@ -156,21 +156,22 @@ npm run dev                 # http://localhost:3333
 
 Todas están documentadas en [`.env.example`](.env.example). Resumen:
 
-| Variable | Obligatoria | Uso |
-|---|---|---|
-| `PUBLIC_SITE_URL` | recomendada | URL pública (metadatos, enlaces absolutos) |
-| `PUBLIC_SANITY_PROJECT_ID` | prod | Sin ella se usa el contenido DEMO local |
-| `PUBLIC_SANITY_DATASET` | prod | Normalmente `production` |
-| `PUBLIC_SANITY_API_VERSION` | prod | Fecha, p.ej. `2024-10-01` |
-| `SANITY_API_READ_TOKEN` | si dataset privado | Token de solo lectura |
-| `SANITY_REVALIDATE_SECRET` | opcional | Validar el webhook de revalidación |
-| `META_APP_ID` / `META_APP_SECRET` | galería IG | App de Meta |
-| `INSTAGRAM_USER_ID` | galería IG | ID numérico de la cuenta |
-| `INSTAGRAM_LONG_LIVED_TOKEN` | galería IG | Token de 60 días (se rota por cron) |
-| `CRON_SECRET` | galería IG | Protege el endpoint de cron en Vercel |
-| `MP_ACCESS_TOKEN` / `MP_PUBLIC_KEY` / `MP_WEBHOOK_SECRET` | **no** | Reservadas para Mercado Pago (sin implementar) |
+| Variable                                                  | Obligatoria        | Uso                                            |
+| --------------------------------------------------------- | ------------------ | ---------------------------------------------- |
+| `PUBLIC_SITE_URL`                                         | recomendada        | URL pública (metadatos, enlaces absolutos)     |
+| `PUBLIC_SANITY_PROJECT_ID`                                | prod               | Sin ella se usa el contenido DEMO local        |
+| `PUBLIC_SANITY_DATASET`                                   | prod               | Normalmente `production`                       |
+| `PUBLIC_SANITY_API_VERSION`                               | prod               | Fecha, p.ej. `2024-10-01`                      |
+| `SANITY_API_READ_TOKEN`                                   | si dataset privado | Token de solo lectura                          |
+| `SANITY_REVALIDATE_SECRET`                                | opcional           | Validar el webhook de revalidación             |
+| `META_APP_ID` / `META_APP_SECRET`                         | galería IG         | App de Meta                                    |
+| `INSTAGRAM_USER_ID`                                       | galería IG         | ID numérico de la cuenta                       |
+| `INSTAGRAM_LONG_LIVED_TOKEN`                              | galería IG         | Token de 60 días (se rota por cron)            |
+| `CRON_SECRET`                                             | galería IG         | Protege el endpoint de cron en Vercel          |
+| `MP_ACCESS_TOKEN` / `MP_PUBLIC_KEY` / `MP_WEBHOOK_SECRET` | **no**             | Reservadas para Mercado Pago (sin implementar) |
 
 **Cómo configurarlas:**
+
 - Local: archivo `.env` en la raíz (ignorado por git).
 - Producción: Vercel → Project → Settings → Environment Variables (una por entorno:
   Production / Preview / Development).
@@ -178,15 +179,15 @@ Todas están documentadas en [`.env.example`](.env.example). Resumen:
 
 ## Scripts disponibles
 
-| Comando | Qué hace |
-|---|---|
-| `npm run dev` | Servidor de desarrollo (`http://localhost:4321`) |
-| `npm run build` | Build de producción a `dist/` + `.vercel/output/` |
-| `npm run preview` | Sirve el build localmente (rutas `/api` **no** se ejecutan aquí) |
-| `npm run check` | Type-check de Astro/TS |
-| `npm run format` / `npm run lint` | Prettier |
-| `npm run seed` | Regenera `seed/demo.ndjson` desde `src/data/demoContent.ts` |
-| `node scripts/gen-demo-assets.mjs` | Regenera los SVG de `public/demo/` |
+| Comando                            | Qué hace                                                         |
+| ---------------------------------- | ---------------------------------------------------------------- |
+| `npm run dev`                      | Servidor de desarrollo (`http://localhost:4321`)                 |
+| `npm run build`                    | Build de producción a `dist/` + `.vercel/output/`                |
+| `npm run preview`                  | Sirve el build localmente (rutas `/api` **no** se ejecutan aquí) |
+| `npm run check`                    | Type-check de Astro/TS                                           |
+| `npm run format` / `npm run lint`  | Prettier                                                         |
+| `npm run seed`                     | Regenera `seed/demo.ndjson` desde `src/data/demoContent.ts`      |
+| `node scripts/gen-demo-assets.mjs` | Regenera los SVG de `public/demo/`                               |
 
 ## Desarrollo
 
@@ -224,7 +225,7 @@ Checklist de verificación:
 3. Deploy. Cada `git push` a `main` genera un deploy de producción; cada PR, un preview.
 4. **Cron:** `vercel.json` ya define la rotación semanal del token de Instagram
    (`0 6 * * 1`). Requiere `CRON_SECRET` en las variables de entorno.
-5. **Redeploy al publicar contenido:** en Vercel crea un *Deploy Hook*
+5. **Redeploy al publicar contenido:** en Vercel crea un _Deploy Hook_
    (Settings → Git → Deploy Hooks) y pégalo en Sanity
    (Studio → API → Webhooks) con un `GET`/`POST` al publicar. Opcionalmente valida con
    `SANITY_REVALIDATE_SECRET`.
@@ -276,48 +277,52 @@ editores entran con Google o email. Roles: `Editor` es suficiente para el día a
 
 **Singletons** (un único documento cada uno, en el menú «Contenido» del Studio):
 
-| Documento | Contenido |
-|---|---|
-| ⚙️ Configuración del sitio | WhatsApp (número + mensaje), Instagram, **modo demostración**, logo, colores |
-| 🏔️ Home / Portada | Título, subtítulo, CTAs, texto complementario, imagen de fondo |
-| 👤 Quiénes somos | Texto de Javier (**real**), cifra destacada, foto |
-| 📷 Galería (Instagram) | Fuente (`instagram`/`manual`), nº de fotos, imágenes de respaldo |
-| 📍 Ubicación | Lugar, «dirección pendiente», dirección, mapa, enlace de navegación, nota de atención |
-| ✨ CTA final | Título, texto, botón, fondo |
-| 🔻 Footer | Frase corta, enlaces legales (ocultos por defecto) |
-| 🔤 Títulos de secciones | Título + intro de cada sección (y saludo del FAQ) |
+| Documento                  | Contenido                                                                             |
+| -------------------------- | ------------------------------------------------------------------------------------- |
+| ⚙️ Configuración del sitio | WhatsApp (número + mensaje), Instagram, **modo demostración**, logo, colores          |
+| 🏔️ Home / Portada          | Título, subtítulo, CTAs, texto complementario, imagen de fondo                        |
+| 👤 Quiénes somos           | Texto de Javier (**real**), cifra destacada, foto                                     |
+| 📷 Galería (Instagram)     | Fuente (`instagram`/`manual`), nº de fotos, imágenes de respaldo                      |
+| 📍 Ubicación               | Lugar, «dirección pendiente», dirección, mapa, enlace de navegación, nota de atención |
+| ✨ CTA final               | Título, texto, botón, fondo                                                           |
+| 🔻 Footer                  | Frase corta, enlaces legales (ocultos por defecto)                                    |
+| 🔤 Títulos de secciones    | Título + intro de cada sección (y saludo del FAQ)                                     |
 
 **Colecciones** (varios documentos):
 
-| Documento | Campos clave | Acciones |
-|---|---|---|
-| 🎓 Curso | nombre, descripción corta/larga, duración, precio + «mostrar/consultar», características, nivel, imagen, orden, **activo**, **isDemo** | crear · editar · eliminar · activar/desactivar · ordenar |
-| 💬 Reseña | autor, texto, estrellas (opc.), curso (opc.), foto (opc.), orden, **activa**, **isDemo** | crear · editar · eliminar · activar/desactivar |
-| 🗂️ FAQ · Categoría | nombre, orden, **activa** | crear · editar · eliminar · activar/desactivar |
-| ❓ FAQ · Pregunta | categoría (ref), pregunta, respuesta, orden, **activa**, **isDemo** | crear · editar · eliminar · activar/desactivar |
+| Documento          | Campos clave                                                                                                                           | Acciones                                                 |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| 🎓 Curso           | nombre, descripción corta/larga, duración, precio + «mostrar/consultar», características, nivel, imagen, orden, **activo**, **isDemo** | crear · editar · eliminar · activar/desactivar · ordenar |
+| 💬 Reseña          | autor, texto, estrellas (opc.), curso (opc.), foto (opc.), orden, **activa**, **isDemo**                                               | crear · editar · eliminar · activar/desactivar           |
+| 🗂️ FAQ · Categoría | nombre, orden, **activa**                                                                                                              | crear · editar · eliminar · activar/desactivar           |
+| ❓ FAQ · Pregunta  | categoría (ref), pregunta, respuesta, orden, **activa**, **isDemo**                                                                    | crear · editar · eliminar · activar/desactivar           |
 
 Todos los textos son objetos **`{ Español, English }`**.
 
 ## Gestión de contenido
 
 ### Añadir / editar / eliminar un **curso**
-Studio → **🎓 Cursos** → *Create new* (o abrir uno). Rellena ES y EN. `Activo` controla la
+
+Studio → **🎓 Cursos** → _Create new_ (o abrir uno). Rellena ES y EN. `Activo` controla la
 visibilidad; `Orden` el orden en la grilla. Marca `isDemo` mientras sean datos de ejemplo.
 Precio: número sin separadores + moneda (`CLP`); usa «Mostrar "Consultar"» para ocultarlo.
-Publica (botón *Publish*). El sitio se actualiza en el siguiente deploy (webhook).
+Publica (botón _Publish_). El sitio se actualiza en el siguiente deploy (webhook).
 
 ### Añadir / editar / eliminar una **reseña**
-Studio → **💬 Reseñas** → *Create new*. Campos análogos. `Activa` la muestra/oculta.
+
+Studio → **💬 Reseñas** → _Create new_. Campos análogos. `Activa` la muestra/oculta.
 
 ### Añadir / editar / eliminar una **FAQ**
+
 1. Crea las **categorías** en **🗂️ FAQ · Categorías**.
 2. Crea las **preguntas** en **❓ FAQ · Preguntas**, cada una asignada a una categoría.
-`Orden` ordena dentro de la categoría. El front las presenta como un «chat» controlado
-(sin IA): el visitante elige categoría → pregunta → respuesta configurada.
+   `Orden` ordena dentro de la categoría. El front las presenta como un «chat» controlado
+   (sin IA): el visitante elige categoría → pregunta → respuesta configurada.
 
 ### Administrar los **textos ES / EN**
+
 Cada campo de texto tiene dos subcampos (Español / English). Edita ambos. Si un idioma queda
-vacío, el sitio hace *fallback* al español. Los títulos de secciones están en
+vacío, el sitio hace _fallback_ al español. Los títulos de secciones están en
 **🔤 Títulos de secciones**.
 
 ## Internacionalización (i18n)
@@ -340,9 +345,9 @@ vacío, el sitio hace *fallback* al español. Los títulos de secciones están e
 
 Requiere que **@academyglider** sea cuenta **Business o Creator**.
 
-1. <https://developers.facebook.com> → **Create App** → tipo *Business*.
-2. Añade el producto **Instagram** → *Instagram API with Instagram Login*.
-3. Permisos: `instagram_business_basic`. Añade la cuenta como *Instagram Tester* y acéptala
+1. <https://developers.facebook.com> → **Create App** → tipo _Business_.
+2. Añade el producto **Instagram** → _Instagram API with Instagram Login_.
+3. Permisos: `instagram_business_basic`. Añade la cuenta como _Instagram Tester_ y acéptala
    desde la app de Instagram (Configuración → Apps y sitios web).
 4. Genera un **token de corta duración** y cámbialo por uno de **larga duración** (60 días).
    Guarda en Vercel:
@@ -357,9 +362,10 @@ Requiere que **@academyglider** sea cuenta **Business o Creator**.
 `vercel.json` programa `GET /api/cron/refresh-instagram-token` cada lunes. La Graph API
 devuelve un token nuevo cada vez que se refresca (extiende otros 60 días). **Persistir el
 token nuevo** requiere una de estas opciones (ver TODO en el archivo):
+
 - **Recomendado:** usar la API de Vercel (`VERCEL_TOKEN` + `PATCH` de la env var) desde el cron.
 - Alternativa: guardarlo en un documento de Sanity y leerlo desde `fetchInstagramMedia`.
-Mientras tanto, el cron mantiene vivo el token y registra el valor nuevo en los logs.
+  Mientras tanto, el cron mantiene vivo el token y registra el valor nuevo en los logs.
 
 ### Cambiar a un servicio gestionado
 
@@ -385,7 +391,7 @@ tocando **solo** `src/lib/instagram.ts` (misma forma de `InstagramMediaItem`).
 
 Lo que habría que añadir cuando se decida:
 
-1. `POST /api/checkout` — crea una *preference* con el SDK de Mercado Pago a partir de un `slug`
+1. `POST /api/checkout` — crea una _preference_ con el SDK de Mercado Pago a partir de un `slug`
    de curso; devuelve el `init_point`.
 2. Botón «Reservar» en la tarjeta de curso (sólo si `pagoHabilitado`), que redirige a
    **Checkout Pro**.
@@ -397,8 +403,9 @@ Lo que habría que añadir cuando se decida:
 ## Contenido DEMO vs real
 
 **Real** (confirmado por el cliente, ya cargado):
-- Texto de **Quiénes somos** (Javier Martínez, +20 años). *La traducción al inglés es un
-  borrador pendiente de revisión de Javier.*
+
+- Texto de **Quiénes somos** (Javier Martínez, +20 años). _La traducción al inglés es un
+  borrador pendiente de revisión de Javier._
 - WhatsApp `+56 9 5255 9138` y mensaje.
 - Instagram `@academyglider`.
 - Ubicación: **Geopark Vizcachaz** + nota «atención con agenda previa» (dirección exacta
@@ -457,16 +464,16 @@ Para pasar de DEMO a real (ver también el plan de proyecto):
 
 ## Troubleshooting
 
-| Síntoma | Causa / solución |
-|---|---|
-| El build avisa «Node.js version (24) is not supported» | Usa Node 22 (`nvm use 22`). El build igual funciona. |
-| La galería muestra siempre las imágenes DEMO | No hay `INSTAGRAM_*` configuradas o el token caducó. Revisa `/api/instagram` y los logs. |
-| Cambié algo en Sanity y el sitio no cambia | Falta el Deploy Hook (webhook Sanity → Vercel), o el deploy aún no terminó. |
-| «Cannot find name 'process'» en `astro check` | `npm i -D @types/node@22`. |
-| El Studio no abre / «projectId» inválido | Falta `SANITY_STUDIO_PROJECT_ID` (o `studio/.env`). |
-| Estilos sin aplicar tras cambiar tokens | Reinicia `npm run dev` (Tailwind v4 relee `@theme`). |
-| `npm run seed` falla | Requiere Node ≥ 22.6 (strip de tipos). |
-| Las funciones `/api` no responden en `npm run preview` | Es lo esperado; usa `npm run dev` o `vercel dev`. |
+| Síntoma                                                | Causa / solución                                                                         |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| El build avisa «Node.js version (24) is not supported» | Usa Node 22 (`nvm use 22`). El build igual funciona.                                     |
+| La galería muestra siempre las imágenes DEMO           | No hay `INSTAGRAM_*` configuradas o el token caducó. Revisa `/api/instagram` y los logs. |
+| Cambié algo en Sanity y el sitio no cambia             | Falta el Deploy Hook (webhook Sanity → Vercel), o el deploy aún no terminó.              |
+| «Cannot find name 'process'» en `astro check`          | `npm i -D @types/node@22`.                                                               |
+| El Studio no abre / «projectId» inválido               | Falta `SANITY_STUDIO_PROJECT_ID` (o `studio/.env`).                                      |
+| Estilos sin aplicar tras cambiar tokens                | Reinicia `npm run dev` (Tailwind v4 relee `@theme`).                                     |
+| `npm run seed` falla                                   | Requiere Node ≥ 22.6 (strip de tipos).                                                   |
+| Las funciones `/api` no responden en `npm run preview` | Es lo esperado; usa `npm run dev` o `vercel dev`.                                        |
 
 ## Credenciales y secretos
 
