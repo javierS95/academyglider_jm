@@ -1,0 +1,38 @@
+---
+import type { Locale } from "@/types";
+import DemoBadge from "./DemoBadge.astro";
+
+interface Props {
+  locale: Locale;
+  eyebrow?: string;
+  title: string;
+  intro?: string;
+  isDemo?: boolean;
+  demoMode?: boolean;
+  align?: "left" | "center";
+}
+const {
+  locale,
+  eyebrow,
+  title,
+  intro,
+  isDemo = false,
+  demoMode = false,
+  align = "left",
+} = Astro.props;
+---
+
+<header class:list={["reveal max-w-2xl", align === "center" && "mx-auto text-center"]}>
+  {
+    eyebrow && (
+      <p class="mb-2 text-sm font-semibold tracking-[0.18em] text-sunset-500 uppercase">
+        {eyebrow}
+      </p>
+    )
+  }
+  <div class:list={["flex flex-wrap items-center gap-3", align === "center" && "justify-center"]}>
+    <h2 class="text-3xl sm:text-4xl text-ink-900">{title}</h2>
+    <DemoBadge locale={locale} when={demoMode && isDemo} />
+  </div>
+  {intro && <p class="mt-4 text-lg text-ink-700">{intro}</p>}
+</header>

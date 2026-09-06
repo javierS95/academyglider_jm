@@ -1,0 +1,46 @@
+---
+import type { Locale } from "@/types";
+import { useTranslations } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  show: boolean;
+}
+const { locale, show } = Astro.props;
+const t = useTranslations(locale);
+---
+
+{
+  show && (
+    <div class="bg-amber-300 text-amber-950" role="status">
+      <div class="container-page flex items-start gap-3 py-2 text-xs sm:items-center sm:text-sm">
+        <span aria-hidden="true">⚠</span>
+        <p>
+          <strong>{t("demo.bannerTitle")}.</strong> {t("demo.bannerText")}
+        </p>
+        <button
+          type="button"
+          data-dismiss-demo
+          class="ml-auto shrink-0 rounded px-2 py-0.5 font-semibold hover:bg-amber-400"
+          aria-label="OK"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+  )
+}
+
+<script>
+  const KEY = "ag-demo-banner-dismissed";
+  const banner = document.querySelector("[data-dismiss-demo]")?.closest("div[role=status]");
+  try {
+    if (banner && localStorage.getItem(KEY) === "1") (banner as HTMLElement).hidden = true;
+  } catch {}
+  document.querySelector("[data-dismiss-demo]")?.addEventListener("click", () => {
+    if (banner) (banner as HTMLElement).hidden = true;
+    try {
+      localStorage.setItem(KEY, "1");
+    } catch {}
+  });
+</script>

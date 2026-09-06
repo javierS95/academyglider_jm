@@ -1,0 +1,52 @@
+---
+import type { Locale } from "@/types";
+import { getSiteContent } from "@/lib/sanity";
+import { pick, alternatePath } from "@/i18n/utils";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Header from "@/components/Header.astro";
+import DemoBanner from "@/components/DemoBanner.astro";
+import Hero from "@/components/sections/Hero.astro";
+import Courses from "@/components/sections/Courses.astro";
+import About from "@/components/sections/About.astro";
+import Gallery from "@/components/sections/Gallery.astro";
+import Reviews from "@/components/sections/Reviews.astro";
+import Faq from "@/components/sections/Faq.astro";
+import Location from "@/components/sections/Location.astro";
+import CtaFinal from "@/components/sections/CtaFinal.astro";
+import Footer from "@/components/Footer.astro";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp.astro";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const content = await getSiteContent();
+const other: Locale = locale === "es" ? "en" : "es";
+
+const title =
+  locale === "es" ? "AcademyGlider — Escuela de parapente" : "AcademyGlider — Paragliding school";
+const description = pick(content.home.subtitle, locale).replace(/^\[[^\]]+\]\s*/, "");
+---
+
+<BaseLayout
+  locale={locale}
+  title={title}
+  description={description}
+  ogImage={content.home.heroMedia?.url}
+  alternateHref={alternatePath(Astro.url, other)}
+>
+  <Header locale={locale} content={content} />
+  <DemoBanner locale={locale} show={content.settings.demoMode} />
+  <main id="main">
+    <Hero locale={locale} content={content} />
+    <Courses locale={locale} content={content} />
+    <About locale={locale} content={content} />
+    <Gallery locale={locale} content={content} />
+    <Reviews locale={locale} content={content} />
+    <Faq locale={locale} content={content} />
+    <Location locale={locale} content={content} />
+    <CtaFinal locale={locale} content={content} />
+  </main>
+  <Footer locale={locale} content={content} />
+  <FloatingWhatsApp locale={locale} content={content} />
+</BaseLayout>

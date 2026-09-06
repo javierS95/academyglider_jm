@@ -1,0 +1,75 @@
+---
+import type { Locale, SiteContent } from "@/types";
+import { pick } from "@/i18n/utils";
+import { useTranslations } from "@/i18n/ui";
+import { whatsappLink } from "@/lib/whatsapp";
+import SectionHeading from "@/components/SectionHeading.astro";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+}
+const { locale, content } = Astro.props;
+const t = useTranslations(locale);
+const { location, headers, settings } = content;
+const wa = whatsappLink(settings.whatsappNumber, settings.whatsappDefaultMessage, locale);
+const hasMap = !location.addressPending && location.mapEmbedUrl;
+---
+
+<section id="ubicacion" class="section bg-sand-100">
+  <div class="container-page grid gap-10 lg:grid-cols-2">
+    <div class="reveal">
+      <SectionHeading
+        locale={locale}
+        eyebrow={t("nav.location")}
+        title={pick(headers.location.title, locale)}
+        intro={pick(headers.location.intro, locale)}
+        isDemo={headers.location.isDemo}
+        demoMode={settings.demoMode}
+      />
+      <p class="mt-6 font-display text-2xl text-ink-900">{location.placeName}</p>
+      {
+        location.addressPending ? (
+          <p class="mt-2 text-ink-700">{t("location.addressPending")}</p>
+        ) : (
+          <p class="mt-2 text-ink-700">{pick(location.address, locale)}</p>
+        )
+      }
+      <p class="mt-4 max-w-md text-sm text-ink-700">{pick(location.attentionNote, locale)}</p>
+
+      <div class="mt-6 flex flex-wrap gap-3">
+        {
+          location.navigationUrl && (
+            <a
+              href={location.navigationUrl}
+              target="_blank"
+              rel="noopener"
+              class="btn btn-outline text-sm"
+            >
+              {t("location.directions")}
+            </a>
+          )
+        }
+        <a href={wa} target="_blank" rel="noopener" class="btn btn-primary text-sm">WhatsApp</a>
+      </div>
+    </div>
+
+    <div class="reveal overflow-hidden rounded-[var(--radius-xl)] ring-1 ring-ink-900/10">
+      {
+        hasMap ? (
+          <iframe
+            src={location.mapEmbedUrl}
+            title={location.placeName}
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            class="h-full min-h-[20rem] w-full border-0"
+          />
+        ) : (
+          <div class="flex min-h-[20rem] items-center justify-center bg-sky-900/90 p-8 text-center text-sm text-white/80">
+            {t("location.mapPending")}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,71 @@
+---
+import type { Locale, SiteContent } from "@/types";
+import { pick } from "@/i18n/utils";
+import { useTranslations } from "@/i18n/ui";
+import { whatsappLink } from "@/lib/whatsapp";
+import DemoBadge from "@/components/DemoBadge.astro";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+}
+const { locale, content } = Astro.props;
+const t = useTranslations(locale);
+const { home, settings } = content;
+
+const wa = whatsappLink(
+  settings.whatsappNumber,
+  home.whatsappMessageOverride ?? settings.whatsappDefaultMessage,
+  locale,
+  settings.whatsappDefaultMessage,
+);
+const hero = home.heroMedia;
+---
+
+<section id="inicio" class="relative flex min-h-[100svh] items-center overflow-hidden">
+  {
+    hero && (
+      <img
+        src={hero.url}
+        alt={pick(hero.alt, locale)}
+        class="absolute inset-0 h-full w-full object-cover"
+        fetchpriority="high"
+        decoding="async"
+      />
+    )
+  }
+  <div
+    class="absolute inset-0"
+    style="background:linear-gradient(180deg, rgba(27,42,74,0.55) 0%, rgba(27,42,74,0.2) 40%, rgba(193,59,75,0.55) 100%)"
+  >
+  </div>
+
+  <div class="container-page relative z-10 py-28 text-white">
+    <div class="max-w-2xl">
+      <DemoBadge locale={locale} when={settings.demoMode && home.isDemo} class="mb-5" />
+      <h1 class="text-4xl leading-[1.05] sm:text-6xl">{pick(home.title, locale)}</h1>
+      <p class="mt-5 text-lg text-white/90 sm:text-xl">{pick(home.subtitle, locale)}</p>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href={wa} target="_blank" rel="noopener" class="btn btn-primary">
+          {pick(home.ctaLabel, locale)}
+        </a>
+        <a href="#cursos" class="btn btn-ghost">{pick(home.secondaryCtaLabel, locale)}</a>
+      </div>
+
+      {
+        home.complementaryText && (
+          <p class="mt-8 max-w-xl text-sm text-white/75">{pick(home.complementaryText, locale)}</p>
+        )
+      }
+    </div>
+  </div>
+
+  <a
+    href="#cursos"
+    class="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-xs tracking-[0.2em] text-white/80 uppercase"
+    aria-hidden="true"
+  >
+    {t("scroll.hint")} ↓
+  </a>
+</section>

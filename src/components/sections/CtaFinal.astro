@@ -1,0 +1,45 @@
+---
+import type { Locale, SiteContent } from "@/types";
+import { pick } from "@/i18n/utils";
+import { whatsappLink } from "@/lib/whatsapp";
+import DemoBadge from "@/components/DemoBadge.astro";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+}
+const { locale, content } = Astro.props;
+const { ctaFinal, settings } = content;
+const wa = whatsappLink(
+  settings.whatsappNumber,
+  ctaFinal.whatsappMessageOverride ?? settings.whatsappDefaultMessage,
+  locale,
+  settings.whatsappDefaultMessage,
+);
+const bg = ctaFinal.backgroundMedia;
+---
+
+<section id="contacto" class="relative overflow-hidden">
+  {
+    bg && (
+      <img
+        src={bg.url}
+        alt={pick(bg.alt, locale)}
+        loading="lazy"
+        decoding="async"
+        class="absolute inset-0 h-full w-full object-cover"
+      />
+    )
+  }
+  <div class="absolute inset-0 bg-gradient-to-t from-sky-900/85 via-sunset-600/40 to-sunset-500/50">
+  </div>
+
+  <div class="container-page relative z-10 py-24 text-center text-white sm:py-32">
+    <DemoBadge locale={locale} when={settings.demoMode && ctaFinal.isDemo} class="mb-5" />
+    <h2 class="mx-auto max-w-3xl text-4xl sm:text-5xl">{pick(ctaFinal.title, locale)}</h2>
+    <p class="mx-auto mt-5 max-w-xl text-lg text-white/90">{pick(ctaFinal.text, locale)}</p>
+    <a href={wa} target="_blank" rel="noopener" class="btn btn-primary mt-8 text-base">
+      {pick(ctaFinal.buttonLabel, locale)}
+    </a>
+  </div>
+</section>

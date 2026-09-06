@@ -1,0 +1,170 @@
+---
+import type { Locale, SiteContent } from "@/types";
+import { pick } from "@/i18n/utils";
+import { useTranslations } from "@/i18n/ui";
+import { whatsappLink } from "@/lib/whatsapp";
+import SectionHeading from "@/components/SectionHeading.astro";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+}
+const { locale, content } = Astro.props;
+const t = useTranslations(locale);
+const { headers, settings } = content;
+
+const categories = content.faqCategories
+  .filter((c) => c.active)
+  .sort((a, b) => a.order - b.order)
+  .map((c) => ({
+    id: c._id,
+    name: pick(c.name, locale),
+    items: content.faqItems
+      .filter((i) => i.active && i.categoryId === c._id)
+      .sort((a, b) => a.order - b.order)
+      .map((i) => ({ q: pick(i.question, locale), a: pick(i.answer, locale) })),
+  }))
+  .filter((c) => c.items.length > 0);
+
+const wa = whatsappLink(settings.whatsappNumber, settings.whatsappDefaultMessage, locale);
+
+const strings = {
+  welcome: pick(headers.faq.welcome, locale),
+  pickCategory: t("faq.pickCategory"),
+  pickQuestion: t("faq.pickQuestion"),
+  another: t("faq.another"),
+  you: t("faq.you"),
+  bot: t("faq.bot"),
+};
+---
+
+<section id="faq" class="section bg-sky-900 text-white">
+  <div class="container-page">
+    <SectionHeading
+      locale={locale}
+      eyebrow="FAQ"
+      title={pick(headers.faq.title, locale)}
+      intro={pick(headers.faq.intro, locale)}
+      isDemo={headers.faq.isDemo}
+      demoMode={settings.demoMode}
+    />
+
+    <div
+      id="faq-bot"
+      class="reveal mx-auto mt-10 max-w-2xl overflow-hidden rounded-[var(--radius-xl)] bg-white text-ink-900 shadow-2xl"
+      data-faq={JSON.stringify(categories)}
+      data-strings={JSON.stringify(strings)}
+    >
+      <div class="flex items-center gap-2 border-b border-ink-900/10 bg-sand-50 px-5 py-3">
+        <span class="inline-block h-2.5 w-2.5 rounded-full bg-forest-400"></span>
+        <span class="text-sm font-semibold">{strings.bot}</span>
+      </div>
+      <div
+        id="faq-log"
+        class="flex max-h-[26rem] min-h-[18rem] flex-col gap-3 overflow-y-auto px-5 py-5"
+        aria-live="polite"
+      >
+      </div>
+      <div id="faq-choices" class="flex flex-wrap gap-2 border-t border-ink-900/10 px-5 py-4"></div>
+      <div class="border-t border-ink-900/10 px-5 py-3 text-center">
+        <a
+          href={wa}
+          target="_blank"
+          rel="noopener"
+          class="text-sm font-semibold text-sunset-600 underline"
+        >
+          {t("faq.toWhatsapp")}
+        </a>
+      </div>
+    </div>
+
+    <noscript>
+      <div class="mx-auto mt-6 max-w-2xl space-y-4 rounded-xl bg-white p-6 text-ink-900">
+        {
+          categories.map((c) => (
+            <div>
+              <h3 class="font-display text-lg">{c.name}</h3>
+              <dl class="mt-2 space-y-2">
+                {c.items.map((it) => (
+                  <div>
+                    <dt class="font-semibold">{it.q}</dt>
+                    <dd class="text-ink-700">{it.a}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          ))
+        }
+      </div>
+    </noscript>
+  </div>
+</section>
+
+<script>
+  type Cat = { id: string; name: string; items: { q: string; a: string }[] };
+  const root = document.getElementById("faq-bot");
+  if (root) {
+    const cats: Cat[] = JSON.parse(root.dataset.faq || "[]");
+    const s = JSON.parse(root.dataset.strings || "{}");
+    const log = root.querySelector("#faq-log") as HTMLElement;
+    const choices = root.querySelector("#faq-choices") as HTMLElement;
+
+    const bubble = (who: "bot" | "you", text: string) => {
+      const wrap = document.createElement("div");
+      wrap.className = who === "bot" ? "self-start max-w-[85%]" : "self-end max-w-[85%]";
+      const b = document.createElement("div");
+      b.className =
+        who === "bot"
+          ? "rounded-2xl rounded-tl-sm bg-sand-100 px-4 py-2.5 text-sm"
+          : "rounded-2xl rounded-tr-sm bg-sky-700 px-4 py-2.5 text-sm text-white";
+      b.textContent = text;
+      wrap.appendChild(b);
+      log.appendChild(wrap);
+      log.scrollTop = log.scrollHeight;
+    };
+
+    const chip = (label: string, onClick: () => void) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className =
+        "rounded-full border border-sky-700/30 bg-sand-50 px-3.5 py-1.5 text-sm font-medium transition-colors hover:bg-sky-700 hover:text-white";
+      btn.textContent = label;
+      btn.addEventListener("click", onClick);
+      return btn;
+    };
+
+    const clearChoices = () => (choices.innerHTML = "");
+
+    const showCategories = () => {
+      clearChoices();
+      const hint = document.createElement("span");
+      hint.className =
+        "mr-1 self-center text-xs font-semibold uppercase tracking-wide text-ink-700/70";
+      hint.textContent = s.pickCategory;
+      choices.appendChild(hint);
+      cats.forEach((c) => choices.appendChild(chip(c.name, () => showQuestions(c))));
+    };
+
+    const showQuestions = (cat: Cat) => {
+      bubble("you", cat.name);
+      clearChoices();
+      const hint = document.createElement("span");
+      hint.className =
+        "mr-1 self-center text-xs font-semibold uppercase tracking-wide text-ink-700/70";
+      hint.textContent = s.pickQuestion;
+      choices.appendChild(hint);
+      cat.items.forEach((it) => choices.appendChild(chip(it.q, () => showAnswer(it))));
+      choices.appendChild(chip("← " + s.pickCategory, showCategories));
+    };
+
+    const showAnswer = (it: { q: string; a: string }) => {
+      bubble("you", it.q);
+      setTimeout(() => bubble("bot", it.a), 180);
+      clearChoices();
+      choices.appendChild(chip(s.another, showCategories));
+    };
+
+    bubble("bot", s.welcome);
+    showCategories();
+  }
+</script>

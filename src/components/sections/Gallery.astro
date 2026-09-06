@@ -1,0 +1,116 @@
+---
+import type { Locale, SiteContent } from "@/types";
+import { pick } from "@/i18n/utils";
+import { useTranslations } from "@/i18n/ui";
+import SectionHeading from "@/components/SectionHeading.astro";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+}
+const { locale, content } = Astro.props;
+const t = useTranslations(locale);
+const { gallery, headers, settings } = content;
+
+// Fallback manual (se muestra si Instagram no está disponible).
+const manual = gallery.manualImages.map((m) => ({
+  src: m.image.url,
+  alt: pick(m.image.alt, locale),
+  link: m.link || settings.instagramUrl,
+}));
+const strings = {
+  loading: t("gallery.loading"),
+  error: t("gallery.error"),
+  openPost: t("gallery.openPost"),
+};
+---
+
+<section id="galeria" class="section bg-sand-100">
+  <div class="container-page">
+    <SectionHeading
+      locale={locale}
+      eyebrow="Instagram"
+      title={pick(headers.gallery.title, locale)}
+      intro={pick(headers.gallery.intro, locale)}
+      isDemo={headers.gallery.isDemo}
+      demoMode={settings.demoMode}
+    />
+
+    <div
+      id="ig-grid"
+      class="reveal mt-10 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3"
+      data-manual={JSON.stringify(manual)}
+      data-strings={JSON.stringify(strings)}
+      data-max={gallery.maxItems}
+      data-source={gallery.source}
+    >
+      <p class="col-span-full py-8 text-center text-ink-700" data-ig-status>{strings.loading}</p>
+    </div>
+
+    <div class="mt-8 text-center">
+      <a
+        href={settings.instagramUrl}
+        target="_blank"
+        rel="noopener"
+        class="btn btn-outline"
+        aria-label={t("ig.aria")}
+      >
+        {pick(gallery.instagramCtaLabel, locale)} · @{settings.instagramHandle}
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  type Tile = { src: string; alt: string; link: string };
+  const grid = document.getElementById("ig-grid");
+  if (grid) {
+    const manual: Tile[] = JSON.parse(grid.dataset.manual || "[]");
+    const s = JSON.parse(grid.dataset.strings || "{}");
+    const max = Number(grid.dataset.max || 9);
+
+    const render = (tiles: Tile[], note?: string) => {
+      grid.innerHTML = "";
+      if (note) {
+        const p = document.createElement("p");
+        p.className = "col-span-full mb-1 text-center text-xs text-ink-700/80";
+        p.textContent = note;
+        grid.appendChild(p);
+      }
+      tiles.slice(0, max).forEach((tsrc) => {
+        const a = document.createElement("a");
+        a.href = tsrc.link;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.className = "group relative block aspect-square overflow-hidden rounded-lg bg-sand-200";
+        a.setAttribute("aria-label", s.openPost || "Instagram");
+        const img = document.createElement("img");
+        img.src = tsrc.src;
+        img.alt = tsrc.alt || "";
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.className =
+          "h-full w-full object-cover transition-transform duration-500 group-hover:scale-105";
+        a.appendChild(img);
+        grid.appendChild(a);
+      });
+    };
+
+    fetch("/api/instagram")
+      .then((r) => r.json())
+      .then((data: { items?: any[]; fallback?: boolean }) => {
+        if (!data.fallback && data.items && data.items.length) {
+          render(
+            data.items.map((it) => ({
+              src: it.thumbnailUrl || it.mediaUrl,
+              alt: (it.caption || "").slice(0, 120),
+              link: it.permalink,
+            })),
+          );
+        } else {
+          render(manual, manual.length ? s.error : undefined);
+        }
+      })
+      .catch(() => render(manual, s.error));
+  }
+</script>

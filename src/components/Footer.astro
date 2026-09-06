@@ -1,0 +1,74 @@
+---
+import type { Locale, SiteContent } from "@/types";
+import { pick } from "@/i18n/utils";
+import { useTranslations } from "@/i18n/ui";
+import { whatsappLink } from "@/lib/whatsapp";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+}
+const { locale, content } = Astro.props;
+const t = useTranslations(locale);
+const { footer, settings, location } = content;
+const wa = whatsappLink(settings.whatsappNumber, settings.whatsappDefaultMessage, locale);
+const year = new Date().getFullYear();
+---
+
+<footer class="bg-ink-900 text-sand-100">
+  <div class="container-page grid gap-8 py-14 sm:grid-cols-2 lg:grid-cols-4">
+    <div>
+      <p class="font-display text-xl">AcademyGlider</p>
+      {
+        footer.tagline && (
+          <p class="mt-1 text-sm text-sand-200/70">{pick(footer.tagline, locale)}</p>
+        )
+      }
+    </div>
+
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-sand-200/60 uppercase">Instagram</p>
+      <a
+        href={settings.instagramUrl}
+        target="_blank"
+        rel="noopener"
+        class="mt-1 inline-block hover:text-sunset-300"
+        aria-label={t("ig.aria")}>@{settings.instagramHandle}</a
+      >
+    </div>
+
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-sand-200/60 uppercase">WhatsApp</p>
+      <a href={wa} target="_blank" rel="noopener" class="mt-1 inline-block hover:text-sunset-300">
+        +56 9 5255 9138
+      </a>
+    </div>
+
+    <div>
+      <p class="text-xs font-semibold tracking-widest text-sand-200/60 uppercase">
+        {t("nav.location")}
+      </p>
+      <p class="mt-1 text-sm text-sand-200/80">{location.placeName}</p>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10">
+    <div
+      class="container-page flex flex-col gap-2 py-5 text-xs text-sand-200/60 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>© {year} AcademyGlider. {t("footer.rights")}</p>
+      {
+        footer.showLegal && footer.legalLinks.length > 0 && (
+          <nav class="flex gap-4">
+            {footer.legalLinks.map((l) => (
+              <a href={l.url} class="hover:text-sand-100">
+                {pick(l.label, locale)}
+              </a>
+            ))}
+          </nav>
+        )
+      }
+      <p>{t("footer.builtWith")}</p>
+    </div>
+  </div>
+</footer>

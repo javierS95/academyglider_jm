@@ -1,0 +1,49 @@
+---
+import type { Locale, SiteContent } from "@/types";
+import { pick } from "@/i18n/utils";
+import DemoBadge from "@/components/DemoBadge.astro";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+}
+const { locale, content } = Astro.props;
+const { about, settings } = content;
+const paragraphs = pick(about.body, locale).split(/\n\n+/);
+---
+
+<section id="quienes-somos" class="section bg-sky-900 text-white">
+  <div class="container-page grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+    <div class="reveal">
+      {
+        about.photo && (
+          <div class="relative">
+            <img
+              src={about.photo.url}
+              alt={pick(about.photo.alt, locale)}
+              loading="lazy"
+              decoding="async"
+              class="w-full rounded-[var(--radius-xl)] object-cover shadow-2xl"
+            />
+            <div class="absolute -right-4 -bottom-6 rounded-2xl bg-sunset-500 px-5 py-3 text-center shadow-lg">
+              <span class="block font-display text-3xl leading-none">
+                {pick(about.highlightNumber, locale)}
+              </span>
+              <span class="text-xs text-white/90">{pick(about.highlightLabel, locale)}</span>
+            </div>
+          </div>
+        )
+      }
+    </div>
+
+    <div class="reveal">
+      <div class="flex flex-wrap items-center gap-3">
+        <h2 class="text-3xl sm:text-4xl">{pick(about.heading, locale)}</h2>
+        <DemoBadge locale={locale} when={settings.demoMode && about.isDemo} />
+      </div>
+      <div class="mt-5 space-y-4 text-white/85">
+        {paragraphs.map((p) => <p>{p}</p>)}
+      </div>
+    </div>
+  </div>
+</section>

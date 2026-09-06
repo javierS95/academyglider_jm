@@ -1,0 +1,20 @@
+---
+import type { Locale } from "@/types";
+import { useTranslations } from "@/i18n/ui";
+
+interface Props {
+  locale: Locale;
+  when?: boolean;
+  class?: string;
+}
+const { locale, when = true, class: className = "" } = Astro.props;
+const t = useTranslations(locale);
+---
+
+{
+  when && (
+    <span class:list={["demo-badge", className]} title={t("demo.badge")}>
+      ⚠ {t("demo.badge")}
+    </span>
+  )
+}

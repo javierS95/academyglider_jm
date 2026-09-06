@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" role="img" aria-label="Instagram 2 (contenido demo)">
+  <defs>
+    <linearGradient id="gr9yvg9" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a5a40"/>
+      <stop offset="0.55" stop-color="#588157"/>
+      <stop offset="1" stop-color="#a3b18a"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="900" fill="url(#gr9yvg9)"/>
+  <path d="M0 900 L0 648 Q 270 495.00000000000006 495.00000000000006 630 T 900 540 L 900 900 Z" fill="#a3b18a" opacity="0.55"/>
+         <circle cx="648" cy="306" r="108" fill="#fff" opacity="0.85"/>
+         <path d="M144 270 q 22 -26 44 0 q 22 -20 40 0" stroke="#fff" stroke-width="3" fill="none" opacity="0.7"/>
+  <rect x="10" y="10" width="880" height="26" rx="6" fill="rgba(0,0,0,0.45)"/>
+  <text x="22" y="28" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#fff" letter-spacing="1">CONTENIDO DEMO — REEMPLAZAR</text>
+  <text x="450" y="450" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="64.28571428571429" font-weight="800" fill="rgba(255,255,255,0.92)">Instagram 2</text>
+  
+</svg>

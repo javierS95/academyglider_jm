@@ -1,0 +1,114 @@
+---
+import type { Locale, SiteContent } from "@/types";
+import { pick } from "@/i18n/utils";
+import { useTranslations } from "@/i18n/ui";
+import { whatsappLink } from "@/lib/whatsapp";
+import SectionHeading from "@/components/SectionHeading.astro";
+import DemoBadge from "@/components/DemoBadge.astro";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+}
+const { locale, content } = Astro.props;
+const t = useTranslations(locale);
+const { headers, settings } = content;
+const courses = content.courses.filter((c) => c.active).sort((a, b) => a.order - b.order);
+
+function formatPrice(value: number, currency: string) {
+  try {
+    return new Intl.NumberFormat(locale === "es" ? "es-CL" : "en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return `${currency} ${value}`;
+  }
+}
+---
+
+<section id="cursos" class="section bg-sand-50">
+  <div class="container-page">
+    <SectionHeading
+      locale={locale}
+      eyebrow={t("nav.courses")}
+      title={pick(headers.courses.title, locale)}
+      intro={pick(headers.courses.intro, locale)}
+      isDemo={headers.courses.isDemo}
+      demoMode={settings.demoMode}
+    />
+
+    <div class="mt-12 grid gap-6 sm:grid-cols-2">
+      {
+        courses.map((course) => {
+          const wa = whatsappLink(
+            settings.whatsappNumber,
+            course.whatsappMessageOverride ?? settings.whatsappDefaultMessage,
+            locale,
+            settings.whatsappDefaultMessage,
+          );
+          return (
+            <article class="reveal flex flex-col overflow-hidden rounded-[var(--radius-xl)] bg-white shadow-[0_20px_50px_-30px_rgba(33,29,26,0.5)] ring-1 ring-ink-900/5">
+              {course.image && (
+                <img
+                  src={course.image.url}
+                  alt={pick(course.image.alt, locale)}
+                  loading="lazy"
+                  decoding="async"
+                  class="aspect-[4/3] w-full object-cover"
+                />
+              )}
+              <div class="flex flex-1 flex-col p-6">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="text-xl text-ink-900">{pick(course.title, locale)}</h3>
+                  <DemoBadge locale={locale} when={settings.demoMode && course.isDemo} />
+                </div>
+                <p class="mt-2 text-sm text-ink-700">{pick(course.shortDescription, locale)}</p>
+
+                <dl class="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                  <div>
+                    <dt class="font-semibold text-ink-900">{t("course.duration")}</dt>
+                    <dd class="text-ink-700">{pick(course.duration, locale)}</dd>
+                  </div>
+                  <div>
+                    <dt class="font-semibold text-ink-900">
+                      {course.priceDisplayMode === "mostrar" ? t("course.from") : " "}
+                    </dt>
+                    <dd class="text-ink-700">
+                      {course.priceDisplayMode === "mostrar"
+                        ? formatPrice(course.price, course.currency)
+                        : t("course.consult")}
+                    </dd>
+                  </div>
+                </dl>
+
+                {course.features?.length > 0 && (
+                  <ul class="mt-4 space-y-1.5 text-sm text-ink-700">
+                    {course.features.map((f) => (
+                      <li class="flex gap-2">
+                        <span aria-hidden="true" class="text-sunset-500">
+                          ✦
+                        </span>
+                        {pick(f, locale)}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <a
+                  href={wa}
+                  target="_blank"
+                  rel="noopener"
+                  class="btn btn-outline mt-6 self-start text-sm"
+                >
+                  {t("course.cta")}
+                </a>
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>

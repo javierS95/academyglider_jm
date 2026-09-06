@@ -1,0 +1,196 @@
+---
+import type { Locale, SiteContent } from "@/types";
+import { useTranslations } from "@/i18n/ui";
+import { alternatePath } from "@/i18n/utils";
+import { whatsappLink } from "@/lib/whatsapp";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+}
+const { locale, content } = Astro.props;
+const t = useTranslations(locale);
+const other: Locale = locale === "es" ? "en" : "es";
+const altHref = alternatePath(Astro.url, other);
+
+const links = [
+  ["#cursos", t("nav.courses")],
+  ["#quienes-somos", t("nav.about")],
+  ["#galeria", t("nav.gallery")],
+  ["#resenas", t("nav.reviews")],
+  ["#faq", t("nav.faq")],
+  ["#ubicacion", t("nav.location")],
+  ["#contacto", t("nav.contact")],
+] as const;
+
+const wa = whatsappLink(
+  content.settings.whatsappNumber,
+  content.settings.whatsappDefaultMessage,
+  locale,
+);
+const homeHref = locale === "es" ? "/" : "/en/";
+---
+
+<header
+  id="site-header"
+  class="fixed inset-x-0 top-0 z-40 transition-colors duration-300"
+  data-at-top="true"
+>
+  <div class="container-page flex h-16 items-center justify-between gap-4">
+    <a href={homeHref} class="flex items-center gap-2" aria-label="AcademyGlider — inicio">
+      <img
+        src={content.settings.logo?.url ?? "/logo-academyglider.jpg"}
+        alt="AcademyGlider"
+        width="40"
+        height="40"
+        class="h-10 w-10 rounded-lg object-cover"
+      />
+      <span class="header-wordmark font-display text-lg font-semibold">AcademyGlider</span>
+    </a>
+
+    <nav
+      class="hidden items-center gap-6 lg:flex"
+      aria-label={locale === "es" ? "Principal" : "Main"}
+    >
+      {
+        links.map(([href, label]) => (
+          <a
+            href={href}
+            class="header-link text-sm font-medium transition-opacity hover:opacity-70"
+          >
+            {label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="hidden items-center gap-3 lg:flex">
+      <a
+        href={altHref}
+        class="header-link rounded-full border border-current px-3 py-1 text-xs font-semibold opacity-90"
+        aria-label={t("lang.switch")}>{other.toUpperCase()}</a
+      >
+      <a href={wa} target="_blank" rel="noopener" class="btn btn-primary !px-4 !py-2 text-sm">
+        WhatsApp
+      </a>
+    </div>
+
+    <button
+      id="menu-toggle"
+      type="button"
+      class="header-link lg:hidden"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      aria-label={t("nav.openMenu")}
+    >
+      <svg
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Menú móvil -->
+  <div
+    id="mobile-menu"
+    class="fixed inset-0 z-50 hidden flex-col bg-sky-900 px-6 pt-6 pb-10 text-white"
+  >
+    <div class="flex items-center justify-between">
+      <span class="font-display text-lg">AcademyGlider</span>
+      <button id="menu-close" type="button" aria-label={t("nav.closeMenu")}>
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+          <line x1="6" y1="18" x2="18" y2="6"></line>
+        </svg>
+      </button>
+    </div>
+    <nav
+      class="mt-10 flex flex-col gap-5 text-2xl font-display"
+      aria-label={locale === "es" ? "Móvil" : "Mobile"}
+    >
+      {
+        links.map(([href, label]) => (
+          <a href={href} data-close-menu>
+            {label}
+          </a>
+        ))
+      }
+    </nav>
+    <div class="mt-auto flex items-center gap-3 pt-8">
+      <a href={altHref} class="rounded-full border border-white/40 px-4 py-2 text-sm font-semibold"
+        >{t("lang.switch")}: {other.toUpperCase()}</a
+      >
+      <a href={wa} target="_blank" rel="noopener" class="btn btn-primary text-sm">WhatsApp</a>
+    </div>
+  </div>
+</header>
+
+<style>
+  /* En el tope, sobre el hero oscuro: texto blanco y fondo transparente.
+     Al hacer scroll: barra clara. */
+  #site-header[data-at-top="true"] {
+    background: transparent;
+  }
+  #site-header[data-at-top="true"] .header-link,
+  #site-header[data-at-top="true"] .header-wordmark {
+    color: #fff;
+  }
+  #site-header[data-at-top="false"] {
+    background: rgba(250, 246, 240, 0.92);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 1px 0 rgba(33, 29, 26, 0.08);
+  }
+  #site-header[data-at-top="false"] .header-link,
+  #site-header[data-at-top="false"] .header-wordmark {
+    color: var(--color-ink-900);
+  }
+  #mobile-menu.is-open {
+    display: flex;
+  }
+  body.menu-open {
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  const header = document.getElementById("site-header")!;
+  const menu = document.getElementById("mobile-menu")!;
+  const toggle = document.getElementById("menu-toggle")!;
+  const closeBtn = document.getElementById("menu-close")!;
+
+  const onScroll = () => {
+    header.dataset.atTop = window.scrollY < 24 ? "true" : "false";
+  };
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  const openMenu = () => {
+    menu.classList.add("is-open");
+    document.body.classList.add("menu-open");
+    toggle.setAttribute("aria-expanded", "true");
+  };
+  const closeMenu = () => {
+    menu.classList.remove("is-open");
+    document.body.classList.remove("menu-open");
+    toggle.setAttribute("aria-expanded", "false");
+  };
+  toggle.addEventListener("click", openMenu);
+  closeBtn.addEventListener("click", closeMenu);
+  menu.querySelectorAll("[data-close-menu]").forEach((a) => a.addEventListener("click", closeMenu));
+  document.addEventListener("keydown", (e) => e.key === "Escape" && closeMenu());
+</script>

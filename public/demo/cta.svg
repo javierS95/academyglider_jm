@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="Llamada final a la aventura (contenido demo)">
+  <defs>
+    <linearGradient id="gh0p25h" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7b267"/>
+      <stop offset="0.55" stop-color="#f4845f"/>
+      <stop offset="1" stop-color="#e15554"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#gh0p25h)"/>
+  <path d="M0 900 L0 648 Q 480 495.00000000000006 880.0000000000001 630 T 1600 540 L 1600 900 Z" fill="#e15554" opacity="0.55"/>
+         <circle cx="1152" cy="306" r="108" fill="#fff" opacity="0.85"/>
+         <path d="M256 270 q 22 -26 44 0 q 22 -20 40 0" stroke="#fff" stroke-width="3" fill="none" opacity="0.7"/>
+  <rect x="10" y="10" width="1580" height="26" rx="6" fill="rgba(0,0,0,0.45)"/>
+  <text x="22" y="28" font-family="system-ui,Segoe UI,sans-serif" font-size="13" font-weight="700" fill="#fff" letter-spacing="1">CONTENIDO DEMO — REEMPLAZAR</text>
+  <text x="800" y="450" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="64.28571428571429" font-weight="800" fill="rgba(255,255,255,0.92)">Llamada final a la aventura</text>
+  <text x="800" y="474" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="12" fill="rgba(255,255,255,0.8)">Fondo CTA — reemplazar desde el CMS</text>
+</svg>
