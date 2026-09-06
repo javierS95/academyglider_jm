@@ -92,6 +92,10 @@ docs.push(
     placeName: c.location.placeName,
     addressPending: c.location.addressPending,
     address: ls(c.location.address),
+    mapEmbedUrl: c.location.mapEmbedUrl || undefined,
+    latitude: c.location.latitude,
+    longitude: c.location.longitude,
+    navigationUrl: c.location.navigationUrl || undefined,
     attentionNote: lt(c.location.attentionNote),
   }),
 );

@@ -13,7 +13,7 @@ const { locale, content } = Astro.props;
 const t = useTranslations(locale);
 const { location, headers, settings } = content;
 const wa = whatsappLink(settings.whatsappNumber, settings.whatsappDefaultMessage, locale);
-const hasMap = !location.addressPending && location.mapEmbedUrl;
+const hasMap = Boolean(location.mapEmbedUrl);
 ---
 
 <section id="ubicacion" class="section bg-sand-100">

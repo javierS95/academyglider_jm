@@ -443,9 +443,9 @@ Lo que habría que añadir cuando se decida:
 - **Home** — titular y subtítulo del borrador de julio.
 - **Fotos reales** — hero (`pilot-coastal-launch.jpg`) y fondo del CTA (`sunset-flight.jpg`).
 - WhatsApp `+56 9 5255 9138` y mensaje · Instagram `@academyglider`.
-- Ubicación: **Geopark Vizcachaz** + nota «atención con agenda previa» (dirección/mapa exactos
-  pendientes — el borrador de julio tenía un mapa de «Parapente las Vizcachas» que **no** se
-  usó por la diferencia de nombre; confirmar con Javier).
+- Ubicación: **Geopark Vizcachaz** + nota «atención con agenda previa». Coordenadas
+  confirmadas por el cliente (−33.5964885, −70.5044263, sector Las Vizcachas): el mapa y el
+  botón «Cómo llegar» ya funcionan. Falta sólo la dirección de calle exacta.
 
 **DEMO** (marcado con `[CONTENIDO DEMO — REEMPLAZAR]` + badge): frase complementaria del Home,
 texto del CTA final, 2 de las 3 reseñas, imágenes de cursos y foto de «Quiénes somos».
@@ -493,9 +493,7 @@ Para pasar de DEMO a real (editar en <https://academyglider.sanity.studio>):
 - **Cursos:** Javier revisa las 3 descripciones (vienen del borrador de julio). ¿Precios
   (mostrar/ocultar)? ¿Requisitos, cupos, duración del curso para principiantes?
 - **FAQ:** Javier revisa las 6 respuestas (borrador de julio).
-- **Ubicación:** dirección exacta / enlace de Google Maps / coordenadas de Geopark Vizcachaz.
-  El borrador de julio tenía un mapa de «Parapente las Vizcachas» (−33.5964885, −70.5044263) —
-  confirmar si es el lugar o descartarlo.
+- **Ubicación:** dirección de calle exacta (el mapa y las coordenadas ya están confirmados).
 - **Home:** ¿mantener «Bienvenid@ a AcademyGlider» o un titular más potente? Frase
   complementaria (sigue en DEMO).
 - **CTA final:** texto (sigue en DEMO).

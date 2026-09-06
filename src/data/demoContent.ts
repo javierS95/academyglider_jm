@@ -384,10 +384,14 @@ export const demoContent: SiteContent = {
 
   location: {
     placeName: "Geopark Vizcachaz",
+    // Coordenadas confirmadas por el cliente (sector Las Vizcachas). Falta la
+    // dirección de calle exacta -> se mantiene "coordina por WhatsApp".
     addressPending: true,
     address: { es: "", en: "" },
-    mapEmbedUrl: "",
-    navigationUrl: "",
+    mapEmbedUrl: "https://maps.google.com/maps?q=-33.5964885,-70.5044263&z=15&output=embed",
+    latitude: -33.5964885,
+    longitude: -70.5044263,
+    navigationUrl: "https://www.google.com/maps/dir/?api=1&destination=-33.5964885,-70.5044263",
     attentionNote: {
       es: "Atención con agenda previa. Coordina tu visita por WhatsApp. No hay un horario fijo.",
       en: "By appointment only. Coordinate your visit via WhatsApp. There are no fixed hours.",
