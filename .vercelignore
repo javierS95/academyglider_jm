@@ -1,0 +1,7 @@
+# Cosas que no forman parte del sitio desplegado
+studio/
+seed/
+scripts/
+Prompt_AcademyGlider_Claude_Planner.md
+logo_academy.jpg
+.astro/
