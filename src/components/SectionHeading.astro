@@ -10,6 +10,8 @@ interface Props {
   isDemo?: boolean;
   demoMode?: boolean;
   align?: "left" | "center";
+  /** true cuando la sección tiene fondo oscuro (texto claro). */
+  onDark?: boolean;
 }
 const {
   locale,
@@ -19,20 +21,26 @@ const {
   isDemo = false,
   demoMode = false,
   align = "left",
+  onDark = false,
 } = Astro.props;
 ---
 
 <header class:list={["reveal max-w-2xl", align === "center" && "mx-auto text-center"]}>
   {
     eyebrow && (
-      <p class="mb-2 text-sm font-semibold tracking-[0.18em] text-sunset-500 uppercase">
+      <p
+        class:list={[
+          "mb-2 text-sm font-semibold tracking-[0.18em] uppercase",
+          onDark ? "text-sunset-300" : "text-sunset-500",
+        ]}
+      >
         {eyebrow}
       </p>
     )
   }
   <div class:list={["flex flex-wrap items-center gap-3", align === "center" && "justify-center"]}>
-    <h2 class="text-3xl sm:text-4xl text-ink-900">{title}</h2>
+    <h2 class:list={["text-3xl sm:text-4xl", onDark ? "text-white" : "text-ink-900"]}>{title}</h2>
     <DemoBadge locale={locale} when={demoMode && isDemo} />
   </div>
-  {intro && <p class="mt-4 text-lg text-ink-700">{intro}</p>}
+  {intro && <p class:list={["mt-4 text-lg", onDark ? "text-white/80" : "text-ink-700"]}>{intro}</p>}
 </header>

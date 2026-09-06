@@ -47,6 +47,7 @@ const strings = {
       intro={pick(headers.faq.intro, locale)}
       isDemo={headers.faq.isDemo}
       demoMode={settings.demoMode}
+      onDark
     />
 
     <div
@@ -146,12 +147,12 @@ const strings = {
     };
 
     const showQuestions = (cat: Cat) => {
-      bubble("you", cat.name);
+      // Elegir categoría sólo filtra las preguntas: no se envía como mensaje.
       clearChoices();
       const hint = document.createElement("span");
       hint.className =
         "mr-1 self-center text-xs font-semibold uppercase tracking-wide text-ink-700/70";
-      hint.textContent = s.pickQuestion;
+      hint.textContent = cat.name;
       choices.appendChild(hint);
       cat.items.forEach((it) => choices.appendChild(chip(it.q, () => showAnswer(it))));
       choices.appendChild(chip("← " + s.pickCategory, showCategories));

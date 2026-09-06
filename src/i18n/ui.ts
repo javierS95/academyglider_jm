@@ -50,7 +50,6 @@ export const ui = {
     "location.mapPending": "Mapa disponible cuando confirmemos la dirección exacta.",
     "demo.badge": "CONTENIDO DEMO — REEMPLAZAR",
     "footer.rights": "Todos los derechos reservados.",
-    "footer.builtWith": "Contenido administrado sin código.",
   },
   en: {
     "nav.home": "Home",
@@ -91,7 +90,6 @@ export const ui = {
     "location.mapPending": "Map available once we confirm the exact address.",
     "demo.badge": "DEMO CONTENT — REPLACE",
     "footer.rights": "All rights reserved.",
-    "footer.builtWith": "Content managed without code.",
   },
 } as const;
 
