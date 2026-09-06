@@ -13,7 +13,15 @@ const { locale, content } = Astro.props;
 const t = useTranslations(locale);
 const { location, headers, settings } = content;
 const wa = whatsappLink(settings.whatsappNumber, settings.whatsappDefaultMessage, locale);
-const hasMap = Boolean(location.mapEmbedUrl);
+
+// Mapa vía OpenStreetMap (sin API key y sin ruido de consola, a diferencia del
+// iframe de Google Maps). Se construye desde las coordenadas del CMS.
+const { latitude: lat, longitude: lon } = location;
+const mapSrc =
+  lat != null && lon != null
+    ? `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.012}%2C${lat - 0.007}%2C${lon + 0.012}%2C${lat + 0.007}&layer=mapnik&marker=${lat}%2C${lon}`
+    : location.mapEmbedUrl;
+const hasMap = Boolean(mapSrc);
 ---
 
 <section id="ubicacion" class="section bg-sand-100">
@@ -58,10 +66,10 @@ const hasMap = Boolean(location.mapEmbedUrl);
       {
         hasMap ? (
           <iframe
-            src={location.mapEmbedUrl}
+            src={mapSrc}
             title={location.placeName}
             loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
+            referrerpolicy="no-referrer"
             class="h-full min-h-[20rem] w-full border-0"
           />
         ) : (
