@@ -1,0 +1,34 @@
+# build output
+dist/
+.vercel/
+.output/
+
+# astro
+.astro/
+
+# dependencies
+node_modules/
+
+# env (todo salvo el ejemplo)
+.env
+.env.*
+!.env.example
+
+# sanity
+studio/dist/
+studio/node_modules/
+studio/.sanity/
+
+# seed generado (rehacer con `npm run seed`; contiene rutas locales a las fotos)
+/seed/
+
+# logs
+npm-debug.log*
+*.log
+
+# editor / os
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+Thumbs.db

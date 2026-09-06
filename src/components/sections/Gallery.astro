@@ -1,0 +1,130 @@
+---
+import type { Locale, SiteContent, GalleryItem } from "@/types";
+import { pick } from "@/i18n/utils";
+import { useTranslations } from "@/i18n/ui";
+import { postUrlsToItems } from "@/lib/instagram";
+import SectionHeading from "@/components/SectionHeading.astro";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+}
+const { locale, content } = Astro.props;
+const t = useTranslations(locale);
+const { gallery, headers, settings } = content;
+const max = gallery.maxItems || 6;
+
+// Fuente "instagram" (Graph API): el HTML lleva un baseline y el script lo
+// sustituye por el feed que devuelve /api/gallery. Las demás se resuelven aquí.
+const isAuto = gallery.source === "instagram";
+
+const manualItems: GalleryItem[] = (gallery.manualImages ?? []).slice(0, max).map((m) => ({
+  permalink: m.link || settings.instagramUrl,
+  image: m.image.url,
+  alt: pick(m.image.alt, locale),
+}));
+
+let items: GalleryItem[];
+if (gallery.source === "posts")
+  items = postUrlsToItems(gallery.instagramPostUrls ?? []).slice(0, max);
+else if (gallery.source === "manual") items = manualItems;
+else items = manualItems; // baseline para behold / instagram
+
+const openPost = t("gallery.openPost");
+---
+
+<section id="galeria" class="section bg-sand-100">
+  <div class="container-page">
+    <SectionHeading
+      locale={locale}
+      eyebrow="Instagram"
+      title={pick(headers.gallery.title, locale)}
+      intro={pick(headers.gallery.intro, locale)}
+      isDemo={headers.gallery.isDemo}
+      demoMode={settings.demoMode}
+    />
+
+    <ul
+      id="ig-grid"
+      class="reveal mt-10 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3"
+      data-auto={isAuto ? "1" : "0"}
+      data-max={max}
+      data-openpost={openPost}
+    >
+      {
+        items.map((it) => (
+          <li>
+            <a
+              href={it.permalink}
+              target="_blank"
+              rel="noopener"
+              class="group block aspect-square overflow-hidden rounded-lg bg-sand-200"
+              aria-label={openPost}
+            >
+              <img
+                src={it.image}
+                alt={it.alt}
+                loading="lazy"
+                decoding="async"
+                referrerpolicy="no-referrer"
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                onerror="this.closest('li').hidden = true"
+              />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="mt-8 text-center">
+      <a
+        href={settings.instagramUrl}
+        target="_blank"
+        rel="noopener"
+        class="btn btn-outline"
+        aria-label={t("ig.aria")}
+      >
+        {pick(gallery.instagramCtaLabel, locale)} · @{settings.instagramHandle}
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const grid = document.getElementById("ig-grid");
+  if (grid && grid.dataset.auto === "1") {
+    const max = Number(grid.dataset.max || 6);
+    const openPost = grid.dataset.openpost || "Instagram";
+
+    fetch("/api/gallery")
+      .then((r) => r.json())
+      .then((data: { items?: { permalink: string; image: string; alt: string }[] }) => {
+        const items = (data.items || []).filter((i) => i.image).slice(0, max);
+        if (!items.length) return; // se queda el baseline
+        grid.replaceChildren(
+          ...items.map((it) => {
+            const li = document.createElement("li");
+            const a = document.createElement("a");
+            a.href = it.permalink;
+            a.target = "_blank";
+            a.rel = "noopener";
+            a.className = "group block aspect-square overflow-hidden rounded-lg bg-sand-200";
+            a.setAttribute("aria-label", openPost);
+            const img = document.createElement("img");
+            img.src = it.image;
+            img.alt = it.alt || "";
+            img.loading = "lazy";
+            img.decoding = "async";
+            img.referrerPolicy = "no-referrer";
+            img.className =
+              "h-full w-full object-cover transition-transform duration-500 group-hover:scale-105";
+            img.onerror = () => (li.hidden = true);
+            a.appendChild(img);
+            li.appendChild(a);
+            return li;
+          }),
+        );
+      })
+      .catch(() => {});
+  }
+</script>
