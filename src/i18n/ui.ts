@@ -49,9 +49,6 @@ export const ui = {
     "location.addressPending": "Dirección exacta a confirmar — coordina tu visita por WhatsApp.",
     "location.mapPending": "Mapa disponible cuando confirmemos la dirección exacta.",
     "demo.badge": "CONTENIDO DEMO — REEMPLAZAR",
-    "demo.bannerTitle": "Sitio en construcción con contenido de demostración",
-    "demo.bannerText":
-      "Los textos, cursos, reseñas y preguntas marcados son ejemplos provisionales y no representan información oficial de AcademyGlider.",
     "footer.rights": "Todos los derechos reservados.",
     "footer.builtWith": "Contenido administrado sin código.",
   },
@@ -93,9 +90,6 @@ export const ui = {
       "Exact address to be confirmed — coordinate your visit via WhatsApp.",
     "location.mapPending": "Map available once we confirm the exact address.",
     "demo.badge": "DEMO CONTENT — REPLACE",
-    "demo.bannerTitle": "Site under construction with demo content",
-    "demo.bannerText":
-      "The marked texts, courses, reviews and questions are provisional examples and do not represent official AcademyGlider information.",
     "footer.rights": "All rights reserved.",
     "footer.builtWith": "Content managed without code.",
   },

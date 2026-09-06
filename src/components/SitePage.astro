@@ -4,7 +4,6 @@ import { getSiteContent } from "@/lib/sanity";
 import { pick, alternatePath } from "@/i18n/utils";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Header from "@/components/Header.astro";
-import DemoBanner from "@/components/DemoBanner.astro";
 import Hero from "@/components/sections/Hero.astro";
 import Courses from "@/components/sections/Courses.astro";
 import About from "@/components/sections/About.astro";
@@ -36,7 +35,6 @@ const description = pick(content.home.subtitle, locale).replace(/^\[[^\]]+\]\s*/
   alternateHref={alternatePath(Astro.url, other)}
 >
   <Header locale={locale} content={content} />
-  <DemoBanner locale={locale} show={content.settings.demoMode} />
   <main id="main">
     <Hero locale={locale} content={content} />
     <Courses locale={locale} content={content} />
