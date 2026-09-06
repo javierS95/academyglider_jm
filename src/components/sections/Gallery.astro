@@ -11,15 +11,18 @@ interface Props {
 const { locale, content } = Astro.props;
 const t = useTranslations(locale);
 const { gallery, headers, settings } = content;
+const max = gallery.maxItems || 9;
 
-// Fallback manual (se muestra si Instagram no está disponible).
-const manual = gallery.manualImages.map((m) => ({
+// Baseline renderizado en el servidor: imágenes manuales de respaldo.
+// El script cliente lo reemplaza por las incrustaciones de Instagram (vía /api/gallery,
+// cacheado 1 día en el edge para no golpear el límite de oEmbed sin token).
+const manual = gallery.manualImages.slice(0, max).map((m) => ({
   src: m.image.url,
   alt: pick(m.image.alt, locale),
   link: m.link || settings.instagramUrl,
 }));
+
 const strings = {
-  loading: t("gallery.loading"),
   error: t("gallery.error"),
   openPost: t("gallery.openPost"),
 };
@@ -37,14 +40,33 @@ const strings = {
     />
 
     <div
-      id="ig-grid"
-      class="reveal mt-10 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3"
-      data-manual={JSON.stringify(manual)}
+      id="ig-gallery"
+      class="reveal mt-10"
       data-strings={JSON.stringify(strings)}
-      data-max={gallery.maxItems}
-      data-source={gallery.source}
+      data-max={max}
+      data-demo={settings.demoMode ? "1" : "0"}
     >
-      <p class="col-span-full py-8 text-center text-ink-700" data-ig-status>{strings.loading}</p>
+      <div id="ig-manual" class="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
+        {
+          manual.map((tile) => (
+            <a
+              href={tile.link}
+              target="_blank"
+              rel="noopener"
+              class="group relative block aspect-square overflow-hidden rounded-lg bg-sand-200"
+              aria-label={strings.openPost}
+            >
+              <img
+                src={tile.src}
+                alt={tile.alt}
+                loading="lazy"
+                decoding="async"
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            </a>
+          ))
+        }
+      </div>
     </div>
 
     <div class="mt-8 text-center">
@@ -62,31 +84,55 @@ const strings = {
 </section>
 
 <script>
-  type Tile = { src: string; alt: string; link: string };
-  const grid = document.getElementById("ig-grid");
-  if (grid) {
-    const manual: Tile[] = JSON.parse(grid.dataset.manual || "[]");
-    const s = JSON.parse(grid.dataset.strings || "{}");
-    const max = Number(grid.dataset.max || 9);
+  const root = document.getElementById("ig-gallery");
+  if (root) {
+    const s = JSON.parse(root.dataset.strings || "{}");
+    const max = Number(root.dataset.max || 9);
 
-    const render = (tiles: Tile[], note?: string) => {
-      grid.innerHTML = "";
-      if (note) {
-        const p = document.createElement("p");
-        p.className = "col-span-full mb-1 text-center text-xs text-ink-700/80";
-        p.textContent = note;
-        grid.appendChild(p);
+    const loadEmbedScript = () => {
+      if (document.getElementById("ig-embed-js")) {
+        // @ts-expect-error — API global de Instagram
+        window.instgrm?.Embeds?.process?.();
+        return;
       }
-      tiles.slice(0, max).forEach((tsrc) => {
+      const sc = document.createElement("script");
+      sc.id = "ig-embed-js";
+      sc.async = true;
+      sc.src = "https://www.instagram.com/embed.js";
+      document.body.appendChild(sc);
+    };
+
+    const renderOembed = (items: { html: string }[]) => {
+      const grid = document.createElement("div");
+      grid.className = "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3";
+      items.slice(0, max).forEach((it) => {
+        const cell = document.createElement("div");
+        cell.innerHTML = it.html;
+        const bq = cell.querySelector<HTMLElement>(".instagram-media");
+        if (bq) {
+          bq.style.margin = "0";
+          bq.style.minWidth = "0";
+          bq.style.width = "100%";
+        }
+        grid.appendChild(cell);
+      });
+      root.replaceChildren(grid);
+      loadEmbedScript();
+    };
+
+    const renderFeed = (items: any[]) => {
+      const grid = document.createElement("div");
+      grid.className = "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3";
+      items.slice(0, max).forEach((it) => {
         const a = document.createElement("a");
-        a.href = tsrc.link;
+        a.href = it.permalink;
         a.target = "_blank";
         a.rel = "noopener";
         a.className = "group relative block aspect-square overflow-hidden rounded-lg bg-sand-200";
         a.setAttribute("aria-label", s.openPost || "Instagram");
         const img = document.createElement("img");
-        img.src = tsrc.src;
-        img.alt = tsrc.alt || "";
+        img.src = it.thumbnailUrl || it.mediaUrl;
+        img.alt = (it.caption || "").slice(0, 120);
         img.loading = "lazy";
         img.decoding = "async";
         img.className =
@@ -94,23 +140,16 @@ const strings = {
         a.appendChild(img);
         grid.appendChild(a);
       });
+      root.replaceChildren(grid);
     };
 
-    fetch("/api/instagram")
+    fetch("/api/gallery")
       .then((r) => r.json())
-      .then((data: { items?: any[]; fallback?: boolean }) => {
-        if (!data.fallback && data.items && data.items.length) {
-          render(
-            data.items.map((it) => ({
-              src: it.thumbnailUrl || it.mediaUrl,
-              alt: (it.caption || "").slice(0, 120),
-              link: it.permalink,
-            })),
-          );
-        } else {
-          render(manual, manual.length ? s.error : undefined);
-        }
+      .then((data: { mode: string; items?: any[] }) => {
+        if (data.mode === "oembed" && data.items?.length) renderOembed(data.items);
+        else if (data.mode === "feed" && data.items?.length) renderFeed(data.items);
+        // "manual": se queda el baseline ya renderizado
       })
-      .catch(() => render(manual, s.error));
+      .catch(() => {});
   }
 </script>

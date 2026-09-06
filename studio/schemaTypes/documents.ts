@@ -15,8 +15,18 @@ export const course = defineType({
       type: "slug",
       options: { source: "title.es" },
     }),
-    defineField({ name: "isDemo", title: "Contenido de demostración", type: "boolean", initialValue: true }),
-    defineField({ name: "active", title: "Activo (visible en el sitio)", type: "boolean", initialValue: true }),
+    defineField({
+      name: "isDemo",
+      title: "Contenido de demostración",
+      type: "boolean",
+      initialValue: true,
+    }),
+    defineField({
+      name: "active",
+      title: "Activo (visible en el sitio)",
+      type: "boolean",
+      initialValue: true,
+    }),
     defineField({ name: "order", title: "Orden", type: "number", initialValue: 10 }),
     defineField({ name: "shortDescription", title: "Descripción corta", type: LS }),
     defineField({ name: "longDescription", title: "Descripción larga", type: LT }),
@@ -56,7 +66,11 @@ export const course = defineType({
       initialValue: "principiante",
     }),
     defineField({ name: "image", title: "Imagen", type: "localizedImage" }),
-    defineField({ name: "whatsappMessageOverride", title: "Mensaje de WhatsApp específico (opcional)", type: LS }),
+    defineField({
+      name: "whatsappMessageOverride",
+      title: "Mensaje de WhatsApp específico (opcional)",
+      type: LS,
+    }),
     defineField({
       name: "pagoHabilitado",
       title: "Pago online habilitado (RESERVADO — Mercado Pago, aún no operativo)",
@@ -81,9 +95,24 @@ export const review = defineType({
   title: "Reseña",
   type: "document",
   fields: [
-    defineField({ name: "authorName", title: "Nombre de quien la escribe", type: "string", validation: (r) => r.required() }),
-    defineField({ name: "isDemo", title: "Contenido de demostración", type: "boolean", initialValue: true }),
-    defineField({ name: "active", title: "Activa (visible en el sitio)", type: "boolean", initialValue: true }),
+    defineField({
+      name: "authorName",
+      title: "Nombre de quien la escribe",
+      type: "string",
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "isDemo",
+      title: "Contenido de demostración",
+      type: "boolean",
+      initialValue: true,
+    }),
+    defineField({
+      name: "active",
+      title: "Activa (visible en el sitio)",
+      type: "boolean",
+      initialValue: true,
+    }),
     defineField({ name: "order", title: "Orden", type: "number", initialValue: 10 }),
     defineField({ name: "text", title: "Texto de la reseña", type: LT }),
     defineField({
@@ -115,7 +144,10 @@ export const faqCategory = defineType({
     defineField({ name: "order", title: "Orden", type: "number", initialValue: 10 }),
   ],
   orderings: [{ title: "Orden", name: "order", by: [{ field: "order", direction: "asc" }] }],
-  preview: { select: { title: "name.es", active: "active" }, prepare: ({ title, active }) => ({ title: `${active ? "" : "🚫 "}${title}` }) },
+  preview: {
+    select: { title: "name.es", active: "active" },
+    prepare: ({ title, active }) => ({ title: `${active ? "" : "🚫 "}${title}` }),
+  },
 });
 
 export const faqItem = defineType({
@@ -132,13 +164,26 @@ export const faqItem = defineType({
     }),
     defineField({ name: "question", title: "Pregunta", type: LS, validation: (r) => r.required() }),
     defineField({ name: "answer", title: "Respuesta", type: LT }),
-    defineField({ name: "isDemo", title: "Contenido de demostración", type: "boolean", initialValue: true }),
+    defineField({
+      name: "isDemo",
+      title: "Contenido de demostración",
+      type: "boolean",
+      initialValue: true,
+    }),
     defineField({ name: "active", title: "Activa", type: "boolean", initialValue: true }),
-    defineField({ name: "order", title: "Orden dentro de la categoría", type: "number", initialValue: 10 }),
+    defineField({
+      name: "order",
+      title: "Orden dentro de la categoría",
+      type: "number",
+      initialValue: 10,
+    }),
   ],
   orderings: [{ title: "Orden", name: "order", by: [{ field: "order", direction: "asc" }] }],
   preview: {
     select: { title: "question.es", subtitle: "category.name.es", active: "active" },
-    prepare: ({ title, subtitle, active }) => ({ title: `${active ? "" : "🚫 "}${title}`, subtitle }),
+    prepare: ({ title, subtitle, active }) => ({
+      title: `${active ? "" : "🚫 "}${title}`,
+      subtitle,
+    }),
   },
 });

@@ -16,10 +16,7 @@ export const deskStructure: StructureResolver = (S) =>
     .title("Contenido")
     .items([
       ...SINGLETONS.map((s) =>
-        S.listItem()
-          .title(s.title)
-          .id(s.id)
-          .child(S.document().schemaType(s.id).documentId(s.id))
+        S.listItem().title(s.title).id(s.id).child(S.document().schemaType(s.id).documentId(s.id)),
       ),
       S.divider(),
       S.documentTypeListItem("course").title("🎓 Cursos"),

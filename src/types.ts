@@ -105,13 +105,24 @@ export interface FaqItem {
   answer: LocaleText;
 }
 
-export type GallerySource = "instagram" | "manual";
+export type GallerySource =
+  | "oembed" // incrusta posts concretos por URL vía Instagram oEmbed (sin token)
+  | "instagram" // feed automático vía Graph API (requiere token)
+  | "manual"; // imágenes subidas al CMS
 
 export interface GallerySettings {
   source: GallerySource;
   maxItems: number;
   instagramCtaLabel: LocaleString;
+  /** URLs de publicaciones de Instagram a incrustar cuando source === "oembed". */
+  instagramPostUrls: string[];
+  /** Respaldo: se usa si la fuente elegida no devuelve nada. */
   manualImages: { image: ImageAsset; caption?: LocaleString; link?: string }[];
+}
+
+export interface OembedResult {
+  url: string;
+  html: string;
 }
 
 export interface LocationSection {

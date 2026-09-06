@@ -49,31 +49,30 @@ atardecer. SEO no es prioritario; sólo se implementa lo técnico imprescindible
 
 ## Stack tecnológico
 
-| Capa           | Tecnología                                                                        | Motivo                                                       |
-| -------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| Framework      | **Astro 5** (`output: static` + adaptador Vercel para las rutas `/api`)           | HTML estático, JS mínimo, i18n nativo, imágenes optimizadas  |
-| Estilos        | **Tailwind CSS v4** (`@tailwindcss/vite`) + tokens en `src/styles/global.css`     | Mobile-first, sistema de diseño consistente                  |
-| Interactividad | `<script>` vanilla en componentes Astro (sin framework de UI)                     | Menú móvil, selector de idioma, FAQ, galería, botón flotante |
-| CMS            | **Sanity** (Studio en `studio/`)                                                  | Contenido estructurado bilingüe, Studio gratuito, webhooks   |
-| Galería        | **Instagram Graph API** (Instagram API with Instagram Login) vía `/api/instagram` | Fuente oficial; fallback manual en el CMS                    |
-| Hosting        | **Vercel**                                                                        | Deploy desde Git, cron functions, variables de entorno, SSL  |
-| Lenguaje       | TypeScript                                                                        | —                                                            |
+| Capa           | Tecnología                                                                                                | Motivo                                                       |
+| -------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Framework      | **Astro 5** (`output: static` + adaptador Vercel para las rutas `/api`)                                   | HTML estático, JS mínimo, i18n nativo, imágenes optimizadas  |
+| Estilos        | **Tailwind CSS v4** (`@tailwindcss/vite`) + tokens en `src/styles/global.css`                             | Mobile-first, sistema de diseño consistente                  |
+| Interactividad | `<script>` vanilla en componentes Astro (sin framework de UI)                                             | Menú móvil, selector de idioma, FAQ, galería, botón flotante |
+| CMS            | **Sanity** (Studio en `studio/`)                                                                          | Contenido estructurado bilingüe, Studio gratuito, webhooks   |
+| Galería        | **Instagram oEmbed sin token** (posts curados por URL en el CMS); opción de feed automático vía Graph API | Sin credenciales por defecto; fallback manual en el CMS      |
+| Hosting        | **Vercel**                                                                                                | Deploy desde Git, cron functions, variables de entorno, SSL  |
+| Lenguaje       | TypeScript                                                                                                | —                                                            |
 
 ## Arquitectura general
 
 ```
-                 ┌─────────────┐     GROQ (build)      ┌──────────────┐
-                 │   Sanity    │ ───────────────────▶  │  Astro build │──▶ HTML/CSS/JS estático
-                 │  (CMS)      │ ◀── webhook ───────   │   (Vercel)   │
-                 └─────────────┘   (Deploy Hook)       └──────┬───────┘
-                                                              │
-  Navegador ── GET /api/instagram ──▶ Vercel Function ──▶ Instagram Graph API
-                     │                        │
-                     │                        └─ si falla / sin token ─▶ fallback: galería manual del CMS
-                     ▼
-             wa.me/56952559138?text=...  (WhatsApp, sin backend)
+                 ┌─────────────┐     GROQ (build)          ┌──────────────┐
+                 │   Sanity    │ ───────────────────────▶  │  Astro build │──▶ HTML/CSS/JS estático
+                 │   (CMS)     │ ◀── webhook (Deploy Hook)  │   (Vercel)   │
+                 └─────────────┘                           └──────┬───────┘
+  Navegador ── GET /api/gallery ──▶ Vercel Function (cache edge 1 día) ──▶ Instagram oEmbed
+                     │                                                     (posts curados, sin token)
+                     │              o, si fuente = "instagram" ──▶ Graph API (con token)
+                     └─ si nada devuelve ─▶ fallback: galería manual del CMS (ya en el HTML)
 
-  Vercel Cron (semanal) ──▶ /api/cron/refresh-instagram-token ──▶ renueva el token de 60 días
+             wa.me/56952559138?text=...  (WhatsApp, sin backend)
+  Vercel Cron (semanal, solo si se usa la Graph API) ──▶ refresh del token de 60 días
 ```
 
 - **Sin base de datos propia.** Sanity es la única fuente de contenido.
@@ -103,18 +102,18 @@ academyglider_jm/
 │   │   ├── index.astro                    # ES  (/)
 │   │   ├── en/index.astro                 # EN  (/en)
 │   │   └── api/
-│   │       ├── instagram.ts               # feed cacheado + fallback
+│   │       ├── gallery.ts                 # oEmbed / feed IG, cacheado 1 día + fallback
 │   │       └── cron/refresh-instagram-token.ts
 │   ├── layouts/BaseLayout.astro
 │   ├── components/
 │   │   ├── SitePage.astro                 # ensambla la página completa
 │   │   ├── Header.astro  Footer.astro  FloatingWhatsApp.astro
-│   │   ├── DemoBanner.astro  DemoBadge.astro  SectionHeading.astro
+│   │   ├── DemoBadge.astro  SectionHeading.astro
 │   │   └── sections/  Hero · Courses · About · Gallery · Reviews · Faq · Location · CtaFinal
 │   ├── lib/
 │   │   ├── sanity.ts          # cliente + query GROQ + fallback DEMO
 │   │   ├── whatsapp.ts        # construcción de enlaces wa.me
-│   │   └── instagram.ts       # Graph API + rotación de token
+│   │   └── instagram.ts       # oEmbed (sin token) + Graph API + rotación de token
 │   ├── i18n/
 │   │   ├── ui.ts              # microcopy de INTERFAZ (no comercial)
 │   │   └── utils.ts
@@ -213,7 +212,8 @@ Checklist de verificación:
 
 - [ ] `/` y `/en` cargan; el selector de idioma alterna y mantiene el ancla del scroll.
 - [ ] Cada CTA de WhatsApp abre `wa.me/56952559138` con el mensaje exacto.
-- [ ] La galería muestra las imágenes manuales cuando no hay token de Instagram.
+- [ ] `GET /api/gallery` responde `mode: "oembed"` con items; la galería sustituye el baseline
+      manual por las incrustaciones (y cae a las manuales si la API no responde).
 - [ ] El FAQ funciona como «chat» (categoría → pregunta → respuesta) y también sin JS (`<noscript>`).
 - [ ] Cambiar `demoMode` en Sanity muestra/oculta los badges y el banner.
 - [ ] Responsive a 360 / 768 / 1280 px.
@@ -277,16 +277,16 @@ editores entran con Google o email. Roles: `Editor` es suficiente para el día a
 
 **Singletons** (un único documento cada uno, en el menú «Contenido» del Studio):
 
-| Documento                  | Contenido                                                                             |
-| -------------------------- | ------------------------------------------------------------------------------------- |
-| ⚙️ Configuración del sitio | WhatsApp (número + mensaje), Instagram, **modo demostración**, logo, colores          |
-| 🏔️ Home / Portada          | Título, subtítulo, CTAs, texto complementario, imagen de fondo                        |
-| 👤 Quiénes somos           | Texto de Javier (**real**), cifra destacada, foto                                     |
-| 📷 Galería (Instagram)     | Fuente (`instagram`/`manual`), nº de fotos, imágenes de respaldo                      |
-| 📍 Ubicación               | Lugar, «dirección pendiente», dirección, mapa, enlace de navegación, nota de atención |
-| ✨ CTA final               | Título, texto, botón, fondo                                                           |
-| 🔻 Footer                  | Frase corta, enlaces legales (ocultos por defecto)                                    |
-| 🔤 Títulos de secciones    | Título + intro de cada sección (y saludo del FAQ)                                     |
+| Documento                  | Contenido                                                                                           |
+| -------------------------- | --------------------------------------------------------------------------------------------------- |
+| ⚙️ Configuración del sitio | WhatsApp (número + mensaje), Instagram, **modo demostración**, logo, colores                        |
+| 🏔️ Home / Portada          | Título, subtítulo, CTAs, texto complementario, imagen de fondo                                      |
+| 👤 Quiénes somos           | Texto de Javier (**real**), cifra destacada, foto                                                   |
+| 📷 Galería (Instagram)     | Fuente (`oembed`/`instagram`/`manual`), enlaces de publicaciones, nº de fotos, imágenes de respaldo |
+| 📍 Ubicación               | Lugar, «dirección pendiente», dirección, mapa, enlace de navegación, nota de atención               |
+| ✨ CTA final               | Título, texto, botón, fondo                                                                         |
+| 🔻 Footer                  | Frase corta, enlaces legales (ocultos por defecto)                                                  |
+| 🔤 Títulos de secciones    | Título + intro de cada sección (y saludo del FAQ)                                                   |
 
 **Colecciones** (varios documentos):
 
@@ -338,10 +338,41 @@ vacío, el sitio hace _fallback_ al español. Los títulos de secciones están e
 
 ## Integración con Instagram
 
-**Estado actual:** sin token configurado → la galería usa las **imágenes manuales** del CMS
-(`Galería → Imágenes manuales`). El sitio funciona con normalidad.
+La galería tiene **tres fuentes** posibles, elegibles desde el CMS
+(**📷 Galería (Instagram) → Fuente**):
 
-### Activar la galería automática
+| Fuente                     | Cómo funciona                                                                                                                                                   | Requiere                                          |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| **`oembed`** (por defecto) | El editor pega enlaces de publicaciones concretas en `instagramPostUrls`; se incrustan con **Instagram oEmbed** (HTML oficial de Instagram) vía `/api/gallery`. | Nada — sin token, sin app de Meta, sin App Review |
+| **`instagram`**            | Feed automático de las últimas publicaciones vía Graph API, también a través de `/api/gallery`.                                                                 | App de Meta + token de 60 días (ver abajo)        |
+| **`manual`**               | Imágenes subidas al CMS (`Imágenes manuales`). Es también el respaldo de las otras dos.                                                                         | Nada                                              |
+
+`/api/gallery` resuelve la fuente **una vez** y la cachea **1 día** en el edge de Vercel
+(`stale-while-revalidate` 7 días). Así ni los builds ni el tráfico golpean Instagram: ~7
+llamadas/día. El HTML de la página siempre trae las imágenes manuales renderizadas; el
+script las sustituye por las incrustaciones cuando `/api/gallery` responde (si no, se quedan
+las manuales — funciona sin JS).
+
+### Fuente `oembed` (recomendada, ya activa)
+
+Desde junio de 2026 Meta permite llamar a **Instagram oEmbed sin token ni App Review**
+([anuncio](https://developers.facebook.com/blog/post/2026/06/15/tokenless-access-to-meta-oembed-apis/)).
+⚠️ **El límite sin token es bajo y compartido** (`(#4) Application request limit reached`), por
+eso `/api/gallery` cachea agresivamente y **no** se resuelve en el build.
+
+- **Añadir/quitar publicaciones:** en Instagram abre el post → «···» → **Copiar enlace**
+  (`https://www.instagram.com/p/XXXX/` o `/reel/XXXX/`) y pégalo en la lista del CMS.
+  El cambio se ve tras expirar la caché de `/api/gallery` (≤1 día) o forzando un redeploy.
+- El sitio ya viene con **7 publicaciones reales de @academyglider** (tomadas del perfil
+  público en 2026‑09) para que la galería funcione desde el primer deploy. El equipo puede
+  curar esa lista.
+- Limitación: oEmbed incrusta **posts concretos**; no existe forma _sin token_ de traer
+  «las últimas fotos» automáticamente. Para eso, usa la fuente `instagram`.
+- Implementación: `fetchInstagramOembeds()` en `src/lib/instagram.ts`, endpoint
+  `src/pages/api/gallery.ts`, render en `src/components/sections/Gallery.astro`
+  (carga `https://www.instagram.com/embed.js` una vez).
+
+### Fuente `instagram` (feed automático — opcional)
 
 Requiere que **@academyglider** sea cuenta **Business o Creator**.
 
@@ -350,27 +381,16 @@ Requiere que **@academyglider** sea cuenta **Business o Creator**.
 3. Permisos: `instagram_business_basic`. Añade la cuenta como _Instagram Tester_ y acéptala
    desde la app de Instagram (Configuración → Apps y sitios web).
 4. Genera un **token de corta duración** y cámbialo por uno de **larga duración** (60 días).
-   Guarda en Vercel:
-   - `META_APP_ID`, `META_APP_SECRET`
-   - `INSTAGRAM_USER_ID` (ID numérico)
-   - `INSTAGRAM_LONG_LIVED_TOKEN`
-   - `CRON_SECRET` (cualquier cadena larga)
-5. `GET /api/instagram` empezará a devolver las publicaciones reales (cacheadas 1 h en el edge).
+   Guarda en Vercel: `META_APP_ID`, `META_APP_SECRET`, `INSTAGRAM_USER_ID`,
+   `INSTAGRAM_LONG_LIVED_TOKEN`, `CRON_SECRET`.
+5. Cambia la fuente a `instagram` en el CMS. `/api/gallery` devolverá las publicaciones
+   reales (mismo cacheo de 1 día en el edge).
 
-### Rotación del token
-
-`vercel.json` programa `GET /api/cron/refresh-instagram-token` cada lunes. La Graph API
-devuelve un token nuevo cada vez que se refresca (extiende otros 60 días). **Persistir el
-token nuevo** requiere una de estas opciones (ver TODO en el archivo):
-
-- **Recomendado:** usar la API de Vercel (`VERCEL_TOKEN` + `PATCH` de la env var) desde el cron.
-- Alternativa: guardarlo en un documento de Sanity y leerlo desde `fetchInstagramMedia`.
-  Mientras tanto, el cron mantiene vivo el token y registra el valor nuevo en los logs.
-
-### Cambiar a un servicio gestionado
-
-Si Meta endurece las políticas, se puede sustituir la fuente por Behold.so / EmbedSocial
-tocando **solo** `src/lib/instagram.ts` (misma forma de `InstagramMediaItem`).
+**Rotación del token:** `vercel.json` programa `GET /api/cron/refresh-instagram-token` cada
+lunes. La Graph API devuelve un token nuevo en cada refresh (+60 días). **Persistirlo**
+requiere: (recomendado) usar la API de Vercel (`VERCEL_TOKEN` + `PATCH` de la env var) desde
+el cron, o guardarlo en un documento de Sanity. Mientras tanto el cron mantiene vivo el token
+y registra el valor nuevo en los logs (ver TODO en el archivo).
 
 ## Configuración de WhatsApp
 
@@ -429,15 +449,20 @@ el contenido real, desactiva `demoMode` y pon `isDemo = false` donde corresponda
   Sanity, y es la fuente del `seed`.
 - **i18n a nivel de campo** (`{ es, en }`) en vez de documentos separados por idioma: más
   simple de editar para una sola persona.
-- **Galería con doble fuente** (API + manual): cumple «sostenible, sin scraping».
+- **Galería vía Instagram oEmbed sin token** (posts curados en el CMS): tras el cambio de
+  Meta de jun‑2026, es la vía oficial más sostenible y sin mantención; la Graph API queda
+  como opción para feed automático. Nunca se hace scraping.
 - **Tipografías** (`Fraunces` + `Inter`, Google Fonts) y **paleta** (atardecer/cielo/montaña)
   son una propuesta inicial; ajustar al recibir la identidad de marca.
 
 ## Limitaciones conocidas
 
-- Contenido DEMO visible (con aviso) hasta que se cargue el real.
-- Galería automática inactiva hasta configurar la app de Meta y el token.
-- La persistencia automática del token rotado de Instagram está pendiente (ver §Instagram).
+- Contenido DEMO visible (con badge) hasta que se cargue el real.
+- Galería: la fuente `oembed` incrusta **posts concretos** (curados en el CMS), no un feed
+  «últimas fotos» automático. El feed automático (fuente `instagram`) sigue necesitando la
+  app de Meta + token; su persistencia automática está pendiente (ver §Instagram).
+- Las incrustaciones de oEmbed cargan `embed.js` de Instagram (algo de JS y un iframe por
+  post); el aspecto es la tarjeta oficial de Instagram, no una grilla de fotos a sangre.
 - El logo es blanco sobre fondo negro (JPG). Falta una versión con **fondo transparente**
   (PNG/SVG) para superponerlo limpio sobre fotos.
 - Sección Ubicación sin mapa hasta confirmar dirección/coordenadas.
@@ -457,23 +482,26 @@ Para pasar de DEMO a real (ver también el plan de proyecto):
 - **Reseñas reales.**
 - **FAQ real:** categorías y preguntas/respuestas (ES/EN).
 - **Marca:** logo transparente, paleta, tipografías, referencias visuales.
-- **Legal:** razón social / RUT para el footer; política de privacidad (la exige Meta para la
-  app de Instagram).
+- **Legal:** razón social / RUT para el footer; política de privacidad (sólo necesaria si se
+  activa el feed automático de la Graph API).
 - **Dominio** deseado y quién lo registra.
-- **Instagram:** acceso admin para crear la app y generar el token; confirmar Business/Creator.
+- **Galería:** confirmar/curar la lista de publicaciones de Instagram (hoy trae 7 posts reales
+  de @academyglider tomados del perfil). Sólo si se quiere el feed 100 % automático: acceso
+  admin para crear la app de Meta.
 
 ## Troubleshooting
 
-| Síntoma                                                | Causa / solución                                                                         |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| El build avisa «Node.js version (24) is not supported» | Usa Node 22 (`nvm use 22`). El build igual funciona.                                     |
-| La galería muestra siempre las imágenes DEMO           | No hay `INSTAGRAM_*` configuradas o el token caducó. Revisa `/api/instagram` y los logs. |
-| Cambié algo en Sanity y el sitio no cambia             | Falta el Deploy Hook (webhook Sanity → Vercel), o el deploy aún no terminó.              |
-| «Cannot find name 'process'» en `astro check`          | `npm i -D @types/node@22`.                                                               |
-| El Studio no abre / «projectId» inválido               | Falta `SANITY_STUDIO_PROJECT_ID` (o `studio/.env`).                                      |
-| Estilos sin aplicar tras cambiar tokens                | Reinicia `npm run dev` (Tailwind v4 relee `@theme`).                                     |
-| `npm run seed` falla                                   | Requiere Node ≥ 22.6 (strip de tipos).                                                   |
-| Las funciones `/api` no responden en `npm run preview` | Es lo esperado; usa `npm run dev` o `vercel dev`.                                        |
+| Síntoma                                                | Causa / solución                                                                                                                                                    |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| El build avisa «Node.js version (24) is not supported» | Usa Node 22 (`nvm use 22`). El build igual funciona.                                                                                                                |
+| La galería muestra las imágenes de respaldo            | `instagramPostUrls` vacío, enlace inválido/privado, o límite de oEmbed alcanzado (`(#4)`, transitorio). Prueba `GET /api/gallery` y revisa los logs (`[oembed] …`). |
+| Una incrustación de Instagram no aparece               | El enlace debe ser público y con formato `/p/…/` o `/reel/…/`. Reels/posts de cuentas privadas o borrados no se incrustan.                                          |
+| Cambié algo en Sanity y el sitio no cambia             | Falta el Deploy Hook (webhook Sanity → Vercel), o el deploy aún no terminó.                                                                                         |
+| «Cannot find name 'process'» en `astro check`          | `npm i -D @types/node@22`.                                                                                                                                          |
+| El Studio no abre / «projectId» inválido               | Falta `SANITY_STUDIO_PROJECT_ID` (o `studio/.env`).                                                                                                                 |
+| Estilos sin aplicar tras cambiar tokens                | Reinicia `npm run dev` (Tailwind v4 relee `@theme`).                                                                                                                |
+| `npm run seed` falla                                   | Requiere Node ≥ 22.6 (strip de tipos).                                                                                                                              |
+| Las funciones `/api` no responden en `npm run preview` | Es lo esperado; usa `npm run dev` o `vercel dev`.                                                                                                                   |
 
 ## Credenciales y secretos
 

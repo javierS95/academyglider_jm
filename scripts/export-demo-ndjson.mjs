@@ -68,6 +68,7 @@ docs.push(
     source: c.gallery.source,
     maxItems: c.gallery.maxItems,
     instagramCtaLabel: ls(c.gallery.instagramCtaLabel),
+    instagramPostUrls: c.gallery.instagramPostUrls ?? [],
   }),
 );
 

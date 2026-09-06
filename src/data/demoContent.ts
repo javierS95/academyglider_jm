@@ -299,9 +299,22 @@ export const demoContent: SiteContent = {
   ],
 
   gallery: {
-    source: "instagram",
+    // "oembed": incrusta publicaciones concretas por URL (Instagram oEmbed, sin token).
+    // Estas URLs son publicaciones REALES y públicas de @academyglider, tomadas del
+    // perfil el 2026-09. El equipo puede curar/actualizar la lista desde el CMS.
+    // Si la lista queda vacía o el oEmbed falla, se muestran las imágenes de respaldo.
+    source: "oembed",
     maxItems: 9,
     instagramCtaLabel: { es: "Ver más en Instagram", en: "See more on Instagram" },
+    instagramPostUrls: [
+      "https://www.instagram.com/academyglider/reel/DWMHaF3u_sx/",
+      "https://www.instagram.com/academyglider/reel/DWG25QEBDMX/",
+      "https://www.instagram.com/academyglider/reel/Dc7OuJOtXV4/",
+      "https://www.instagram.com/academyglider/reel/DcNUBfDNYMD/",
+      "https://www.instagram.com/academyglider/reel/Db0Y4Z4ufyc/",
+      "https://www.instagram.com/academyglider/reel/DbJCBBjhFpY/",
+      "https://www.instagram.com/academyglider/reel/DavlDX0xsew/",
+    ],
     manualImages: Array.from({ length: 6 }, (_, i) => ({
       image: {
         url: `/demo/gallery-${i + 1}.svg`,

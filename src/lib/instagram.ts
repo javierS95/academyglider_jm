@@ -1,6 +1,8 @@
-import type { InstagramMediaItem } from "@/types";
+import type { InstagramMediaItem, OembedResult } from "@/types";
 
 const GRAPH = "https://graph.instagram.com";
+/** Versión de la Graph API para oEmbed. Bump ~cada 2 años (Meta deprecia versiones). */
+const OEMBED_VERSION = "v21.0";
 const FIELDS = "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp";
 
 interface RawMedia {
@@ -42,6 +44,44 @@ export async function fetchInstagramMedia(limit = 12): Promise<InstagramMediaIte
   }
   const json = (await res.json()) as { data?: RawMedia[] };
   return (json.data ?? []).map(normalize);
+}
+
+/**
+ * Instagram oEmbed — SIN token ni App Review (Meta, jun-2026).
+ * Incrusta una publicación concreta a partir de su URL. Devuelve el HTML oficial
+ * de incrustación (sin <script>: cargamos embed.js aparte).
+ * OJO: el límite sin token es bajo y compartido ("(#4) Application request limit reached").
+ * Por eso se llama SOLO desde /api/gallery, que cachea el resultado 1 día en el edge.
+ * Los fallos se ignoran (se omite ese post).
+ */
+export async function fetchInstagramOembed(
+  postUrl: string,
+  maxwidth = 540,
+): Promise<OembedResult | null> {
+  const api =
+    `https://graph.facebook.com/${OEMBED_VERSION}/instagram_oembed` +
+    `?omitscript=true&maxwidth=${maxwidth}&url=${encodeURIComponent(postUrl)}`;
+  try {
+    const res = await fetch(api, { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) {
+      console.warn(`[oembed] ${res.status} para ${postUrl}`);
+      return null;
+    }
+    const json = (await res.json()) as { html?: string };
+    return json.html ? { url: postUrl, html: json.html } : null;
+  } catch (err) {
+    console.warn(`[oembed] error para ${postUrl}:`, (err as Error).message);
+    return null;
+  }
+}
+
+/** Resuelve varias URLs en paralelo, conservando el orden y descartando las que fallen. */
+export async function fetchInstagramOembeds(
+  postUrls: string[],
+  maxwidth = 540,
+): Promise<OembedResult[]> {
+  const results = await Promise.all(postUrls.map((u) => fetchInstagramOembed(u, maxwidth)));
+  return results.filter((r): r is OembedResult => r !== null);
 }
 
 /**

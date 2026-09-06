@@ -49,7 +49,12 @@ export const homeSection = defineType({
   title: "Home / Portada",
   type: "document",
   fields: [
-    defineField({ name: "isDemo", title: "Contenido de demostración", type: "boolean", initialValue: true }),
+    defineField({
+      name: "isDemo",
+      title: "Contenido de demostración",
+      type: "boolean",
+      initialValue: true,
+    }),
     defineField({ name: "title", title: "Título principal", type: LS }),
     defineField({ name: "subtitle", title: "Subtítulo", type: LS }),
     defineField({ name: "ctaLabel", title: "Texto del botón principal (WhatsApp)", type: LS }),
@@ -95,14 +100,35 @@ export const gallerySettings = defineType({
       name: "source",
       title: "Fuente",
       type: "string",
-      options: { list: [{ title: "Instagram (automático)", value: "instagram" }, { title: "Manual (imágenes de abajo)", value: "manual" }], layout: "radio" },
-      initialValue: "instagram",
+      options: {
+        list: [
+          { title: "Publicaciones por enlace (oEmbed, sin token) — recomendado", value: "oembed" },
+          { title: "Feed automático (Graph API, requiere token)", value: "instagram" },
+          { title: "Manual (imágenes de abajo)", value: "manual" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "oembed",
     }),
-    defineField({ name: "maxItems", title: "Máximo de fotos a mostrar", type: "number", initialValue: 9 }),
+    defineField({
+      name: "maxItems",
+      title: "Máximo de fotos a mostrar",
+      type: "number",
+      initialValue: 9,
+    }),
     defineField({ name: "instagramCtaLabel", title: "Texto del botón “Ver más”", type: LS }),
     defineField({
+      name: "instagramPostUrls",
+      title: "Publicaciones de Instagram (pega el enlace de cada post)",
+      description:
+        'En Instagram: abre el post → menú “···” → “Copiar enlace”. Formato https://www.instagram.com/p/XXXX/ o /reel/XXXX/. Se usan cuando la fuente es "Publicaciones por enlace".',
+      type: "array",
+      of: [{ type: "url" }],
+      validation: (r) => r.unique(),
+    }),
+    defineField({
       name: "manualImages",
-      title: "Imágenes manuales (respaldo si Instagram falla)",
+      title: "Imágenes manuales (respaldo si no hay publicaciones o el feed falla)",
       type: "array",
       of: [
         {
@@ -125,13 +151,19 @@ export const locationSection = defineType({
   title: "Ubicación",
   type: "document",
   fields: [
-    defineField({ name: "placeName", title: "Nombre del lugar", type: "string", initialValue: "Geopark Vizcachaz" }),
+    defineField({
+      name: "placeName",
+      title: "Nombre del lugar",
+      type: "string",
+      initialValue: "Geopark Vizcachaz",
+    }),
     defineField({
       name: "addressPending",
       title: "Dirección exacta pendiente",
       type: "boolean",
       initialValue: true,
-      description: "Mientras esté activo se muestra “coordina por WhatsApp” en vez de la dirección y el mapa.",
+      description:
+        "Mientras esté activo se muestra “coordina por WhatsApp” en vez de la dirección y el mapa.",
     }),
     defineField({ name: "address", title: "Dirección exacta", type: LS }),
     defineField({
@@ -152,12 +184,21 @@ export const ctaFinalSection = defineType({
   title: "CTA final",
   type: "document",
   fields: [
-    defineField({ name: "isDemo", title: "Contenido de demostración", type: "boolean", initialValue: true }),
+    defineField({
+      name: "isDemo",
+      title: "Contenido de demostración",
+      type: "boolean",
+      initialValue: true,
+    }),
     defineField({ name: "title", title: "Título", type: LS }),
     defineField({ name: "text", title: "Texto", type: LT }),
     defineField({ name: "buttonLabel", title: "Texto del botón", type: LS }),
     defineField({ name: "backgroundMedia", title: "Imagen de fondo", ...IMG }),
-    defineField({ name: "whatsappMessageOverride", title: "Mensaje de WhatsApp específico (opcional)", type: LS }),
+    defineField({
+      name: "whatsappMessageOverride",
+      title: "Mensaje de WhatsApp específico (opcional)",
+      type: LS,
+    }),
   ],
   preview: { prepare: () => ({ title: "CTA final" }) },
 });
@@ -168,7 +209,12 @@ export const footerSettings = defineType({
   type: "document",
   fields: [
     defineField({ name: "tagline", title: "Frase corta bajo el nombre", type: LS }),
-    defineField({ name: "showLegal", title: "Mostrar enlaces legales", type: "boolean", initialValue: false }),
+    defineField({
+      name: "showLegal",
+      title: "Mostrar enlaces legales",
+      type: "boolean",
+      initialValue: false,
+    }),
     defineField({
       name: "legalLinks",
       title: "Enlaces legales",
