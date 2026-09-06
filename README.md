@@ -5,11 +5,18 @@ Sitio de una sola página (scroll), bilingüe (ES/EN), con todo el contenido edi
 CMS **sin tocar código**, galería alimentada por Instagram y WhatsApp como canal principal de
 contacto.
 
-> **Estado:** CMS conectado (Sanity, dataset `web`, Studio en
-> <https://academyglider.sanity.studio>). Cursos, FAQ, una reseña, textos del Home y fotos
-> del Home/CTA son **reales**; lo pendiente va marcado `[CONTENIDO DEMO — REEMPLAZAR]`.
-> Ver [§ Contenido DEMO vs real](#contenido-demo-vs-real) y
-> [§ Información que todavía falta](#información-que-todavía-falta).
+> **Estado:** desplegado y en vivo.
+>
+> |                        |                                                                                        |
+> | ---------------------- | -------------------------------------------------------------------------------------- |
+> | Sitio                  | <https://academyglider.vercel.app>                                                     |
+> | CMS (editar contenido) | <https://academyglider.sanity.studio> (dataset `web`)                                  |
+> | Repo                   | `github.com/javierS95/academyglider_jm` (rama `main` = producción)                     |
+> | Deploy                 | automático en cada `git push` a `main`; y al **publicar en Sanity** (webhook → Vercel) |
+>
+> Cursos, FAQ, una reseña, textos del Home y fotos del Home/CTA son **reales**; lo pendiente
+> va marcado `[CONTENIDO DEMO — REEMPLAZAR]`. Ver [§ Contenido DEMO vs real](#contenido-demo-vs-real)
+> y [§ Información que todavía falta](#información-que-todavía-falta).
 
 ---
 
