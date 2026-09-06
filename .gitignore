@@ -9,11 +9,10 @@ dist/
 # dependencies
 node_modules/
 
-# env
+# env (todo salvo el ejemplo)
 .env
-.env.production
-.env.local
-.env*.local
+.env.*
+!.env.example
 
 # sanity
 studio/dist/
