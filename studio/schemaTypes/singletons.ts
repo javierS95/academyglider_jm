@@ -102,33 +102,47 @@ export const gallerySettings = defineType({
       type: "string",
       options: {
         list: [
-          { title: "Publicaciones por enlace (oEmbed, sin token) — recomendado", value: "oembed" },
-          { title: "Feed automático (Graph API, requiere token)", value: "instagram" },
+          {
+            title: "Automática — Behold.so (sin token, se refresca a diario) — recomendado",
+            value: "behold",
+          },
+          { title: "Automática — Instagram Graph API (requiere token)", value: "instagram" },
+          { title: "Publicaciones por enlace (lista fija)", value: "posts" },
           { title: "Manual (imágenes de abajo)", value: "manual" },
         ],
         layout: "radio",
       },
-      initialValue: "oembed",
+      initialValue: "behold",
+    }),
+    defineField({
+      name: "beholdFeedUrl",
+      title: "URL del feed de Behold.so",
+      description:
+        "Crea una cuenta gratis en behold.so, conecta @academyglider y pega aquí la URL del feed JSON (https://feeds.behold.so/…). Se usa cuando la fuente es «Behold.so».",
+      type: "url",
+      hidden: ({ document }) => document?.source !== "behold",
     }),
     defineField({
       name: "maxItems",
-      title: "Máximo de fotos a mostrar",
+      title: "Máximo de publicaciones a mostrar",
       type: "number",
-      initialValue: 9,
+      initialValue: 6,
+      validation: (r) => r.min(1).max(12),
     }),
     defineField({ name: "instagramCtaLabel", title: "Texto del botón “Ver más”", type: LS }),
     defineField({
       name: "instagramPostUrls",
-      title: "Publicaciones de Instagram (pega el enlace de cada post)",
+      title: "Publicaciones de Instagram (lista fija)",
       description:
-        'En Instagram: abre el post → menú “···” → “Copiar enlace”. Formato https://www.instagram.com/p/XXXX/ o /reel/XXXX/. Se usan cuando la fuente es "Publicaciones por enlace".',
+        "En Instagram: abre el post → menú “···” → “Copiar enlace”. Formato https://www.instagram.com/p/XXXX/ o /reel/XXXX/. Se usan cuando la fuente es «Publicaciones por enlace».",
       type: "array",
       of: [{ type: "url" }],
       validation: (r) => r.unique(),
+      hidden: ({ document }) => document?.source !== "posts",
     }),
     defineField({
       name: "manualImages",
-      title: "Imágenes manuales (respaldo si no hay publicaciones o el feed falla)",
+      title: "Imágenes manuales (respaldo si la fuente elegida no devuelve nada)",
       type: "array",
       of: [
         {

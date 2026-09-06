@@ -68,6 +68,7 @@ docs.push(
     source: c.gallery.source,
     maxItems: c.gallery.maxItems,
     instagramCtaLabel: ls(c.gallery.instagramCtaLabel),
+    beholdFeedUrl: c.gallery.beholdFeedUrl || undefined,
     instagramPostUrls: c.gallery.instagramPostUrls ?? [],
   }),
 );

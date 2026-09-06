@@ -106,23 +106,28 @@ export interface FaqItem {
 }
 
 export type GallerySource =
-  | "oembed" // incrusta posts concretos por URL vía Instagram oEmbed (sin token)
-  | "instagram" // feed automático vía Graph API (requiere token)
+  | "behold" // feed automático vía Behold.so (sin token, se refresca a diario) — recomendado
+  | "instagram" // feed automático vía Instagram Graph API (requiere token)
+  | "posts" // lista fija de URLs de publicaciones (se muestran sus portadas)
   | "manual"; // imágenes subidas al CMS
 
 export interface GallerySettings {
   source: GallerySource;
   maxItems: number;
   instagramCtaLabel: LocaleString;
-  /** URLs de publicaciones de Instagram a incrustar cuando source === "oembed". */
+  /** URL del feed JSON de Behold.so cuando source === "behold". */
+  beholdFeedUrl?: string;
+  /** URLs de publicaciones cuando source === "posts". */
   instagramPostUrls: string[];
   /** Respaldo: se usa si la fuente elegida no devuelve nada. */
   manualImages: { image: ImageAsset; caption?: LocaleString; link?: string }[];
 }
 
-export interface OembedResult {
-  url: string;
-  html: string;
+/** Item normalizado de galería, sea cual sea la fuente. */
+export interface GalleryItem {
+  permalink: string;
+  image: string;
+  alt: string;
 }
 
 export interface LocationSection {
@@ -175,14 +180,4 @@ export interface SiteContent {
   headers: SectionHeaders;
   /** true cuando el contenido proviene del fallback DEMO local (sin Sanity configurado). */
   usingLocalDemo: boolean;
-}
-
-export interface InstagramMediaItem {
-  id: string;
-  caption: string;
-  mediaType: "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM";
-  mediaUrl: string;
-  thumbnailUrl: string;
-  permalink: string;
-  timestamp: string;
 }

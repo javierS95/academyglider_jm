@@ -299,13 +299,16 @@ export const demoContent: SiteContent = {
   ],
 
   gallery: {
-    // "oembed": incrusta publicaciones concretas por URL (Instagram oEmbed, sin token).
-    // Estas URLs son publicaciones REALES y públicas de @academyglider, tomadas del
-    // perfil el 2026-09. El equipo puede curar/actualizar la lista desde el CMS.
-    // Si la lista queda vacía o el oEmbed falla, se muestran las imágenes de respaldo.
-    source: "oembed",
-    maxItems: 9,
+    // Fuente "behold": feed JSON automático de @academyglider (sin token, se refresca
+    // 1 vez/día). Conecta la cuenta en behold.so y pega la URL del feed aquí para que
+    // la galería muestre SIEMPRE lo último, sin curar. Mientras no haya feed conectado
+    // se usa la lista "posts" de abajo (portadas de publicaciones reales).
+    source: "posts",
+    maxItems: 6,
     instagramCtaLabel: { es: "Ver más en Instagram", en: "See more on Instagram" },
+    beholdFeedUrl: "",
+    // Publicaciones reales y públicas de @academyglider (perfil, 2026-09). Interino
+    // hasta conectar Behold: entonces esta lista deja de usarse.
     instagramPostUrls: [
       "https://www.instagram.com/academyglider/reel/DWMHaF3u_sx/",
       "https://www.instagram.com/academyglider/reel/DWG25QEBDMX/",
@@ -313,7 +316,6 @@ export const demoContent: SiteContent = {
       "https://www.instagram.com/academyglider/reel/DcNUBfDNYMD/",
       "https://www.instagram.com/academyglider/reel/Db0Y4Z4ufyc/",
       "https://www.instagram.com/academyglider/reel/DbJCBBjhFpY/",
-      "https://www.instagram.com/academyglider/reel/DavlDX0xsew/",
     ],
     manualImages: Array.from({ length: 6 }, (_, i) => ({
       image: {

@@ -63,7 +63,7 @@ const SITE_QUERY = `{
     "_id": _id, isDemo, active, order, "categoryId": category._ref, question, answer
   },
   "gallery": *[_type == "gallerySettings"][0]{
-    source, maxItems, instagramCtaLabel, instagramPostUrls,
+    source, maxItems, instagramCtaLabel, beholdFeedUrl, instagramPostUrls,
     "manualImages": manualImages[]{ "image": image${IMG}, caption, link }
   },
   "location": *[_type == "locationSection"][0]{

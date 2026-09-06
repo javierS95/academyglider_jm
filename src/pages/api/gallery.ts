@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { getSiteContent } from "@/lib/sanity";
-import { fetchInstagramOembeds, fetchInstagramMedia } from "@/lib/instagram";
+import { fetchBeholdFeed, fetchInstagramMedia } from "@/lib/instagram";
 
 export const prerender = false;
 
@@ -9,36 +9,31 @@ const CACHE_FALLBACK = "public, s-maxage=600";
 
 /**
  * GET /api/gallery
- * Resuelve la galería server-side y la cachea fuerte en el edge, para NO golpear
- * Instagram oEmbed (límite bajo, sin token) en cada build ni en cada visita.
+ * Resuelve las fuentes de galería que necesitan red (feed automático) y cachea
+ * fuerte en el edge (1 día) para refrescar a diario sin golpear a Instagram/Behold.
+ * Las fuentes "posts" y "manual" se resuelven en el build (no llegan aquí).
  *
- *  - mode "oembed": items = [{ url, html }]  (incrustaciones oficiales)
- *  - mode "feed":   items = InstagramMediaItem[]  (Graph API con token)
- *  - mode "manual": el cliente usa las imágenes embebidas en la página
+ * Respuesta: { items: GalleryItem[] }  ·  [] = usar el respaldo ya renderizado.
  */
 export const GET: APIRoute = async () => {
   try {
     const { gallery } = await getSiteContent();
-    const max = gallery.maxItems || 9;
+    const max = gallery.maxItems || 6;
 
-    if (gallery.source === "oembed" && gallery.instagramPostUrls?.length) {
-      const items = await fetchInstagramOembeds(gallery.instagramPostUrls.slice(0, max));
-      if (items.length) {
-        return json({ mode: "oembed", items }, CACHE_OK);
-      }
+    if (gallery.source === "behold" && gallery.beholdFeedUrl) {
+      const items = await fetchBeholdFeed(gallery.beholdFeedUrl, max);
+      if (items.length) return json({ items }, CACHE_OK);
     }
 
     if (gallery.source === "instagram") {
       const items = await fetchInstagramMedia(max);
-      if (items.length) {
-        return json({ mode: "feed", items }, CACHE_OK);
-      }
+      if (items.length) return json({ items }, CACHE_OK);
     }
 
-    return json({ mode: "manual" }, CACHE_FALLBACK);
+    return json({ items: [] }, CACHE_FALLBACK);
   } catch (err) {
     console.error("[api/gallery]", (err as Error).message);
-    return json({ mode: "manual", error: "gallery_unavailable" }, CACHE_FALLBACK);
+    return json({ items: [], error: "gallery_unavailable" }, CACHE_FALLBACK);
   }
 };
 

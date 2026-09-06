@@ -1,7 +1,8 @@
 ---
-import type { Locale, SiteContent } from "@/types";
+import type { Locale, SiteContent, GalleryItem } from "@/types";
 import { pick } from "@/i18n/utils";
 import { useTranslations } from "@/i18n/ui";
+import { postUrlsToItems } from "@/lib/instagram";
 import SectionHeading from "@/components/SectionHeading.astro";
 
 interface Props {
@@ -11,21 +12,24 @@ interface Props {
 const { locale, content } = Astro.props;
 const t = useTranslations(locale);
 const { gallery, headers, settings } = content;
-const max = gallery.maxItems || 9;
+const max = gallery.maxItems || 6;
 
-// Baseline renderizado en el servidor: imágenes manuales de respaldo.
-// El script cliente lo reemplaza por las incrustaciones de Instagram (vía /api/gallery,
-// cacheado 1 día en el edge para no golpear el límite de oEmbed sin token).
-const manual = gallery.manualImages.slice(0, max).map((m) => ({
-  src: m.image.url,
+// Fuentes automáticas: el HTML lleva un baseline (manual) y el script lo sustituye
+// por el feed que devuelve /api/gallery (cacheado 1 día = se refresca a diario).
+const isAuto = gallery.source === "behold" || gallery.source === "instagram";
+
+const manualItems: GalleryItem[] = gallery.manualImages.slice(0, max).map((m) => ({
+  permalink: m.link || settings.instagramUrl,
+  image: m.image.url,
   alt: pick(m.image.alt, locale),
-  link: m.link || settings.instagramUrl,
 }));
 
-const strings = {
-  error: t("gallery.error"),
-  openPost: t("gallery.openPost"),
-};
+let items: GalleryItem[];
+if (gallery.source === "posts") items = postUrlsToItems(gallery.instagramPostUrls).slice(0, max);
+else if (gallery.source === "manual") items = manualItems;
+else items = manualItems; // baseline para behold / instagram
+
+const openPost = t("gallery.openPost");
 ---
 
 <section id="galeria" class="section bg-sand-100">
@@ -39,35 +43,37 @@ const strings = {
       demoMode={settings.demoMode}
     />
 
-    <div
-      id="ig-gallery"
-      class="reveal mt-10"
-      data-strings={JSON.stringify(strings)}
+    <ul
+      id="ig-grid"
+      class="reveal mt-10 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3"
+      data-auto={isAuto ? "1" : "0"}
       data-max={max}
-      data-demo={settings.demoMode ? "1" : "0"}
+      data-openpost={openPost}
     >
-      <div id="ig-manual" class="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
-        {
-          manual.map((tile) => (
+      {
+        items.map((it) => (
+          <li>
             <a
-              href={tile.link}
+              href={it.permalink}
               target="_blank"
               rel="noopener"
-              class="group relative block aspect-square overflow-hidden rounded-lg bg-sand-200"
-              aria-label={strings.openPost}
+              class="group block aspect-square overflow-hidden rounded-lg bg-sand-200"
+              aria-label={openPost}
             >
               <img
-                src={tile.src}
-                alt={tile.alt}
+                src={it.image}
+                alt={it.alt}
                 loading="lazy"
                 decoding="async"
+                referrerpolicy="no-referrer"
                 class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                onerror="this.closest('li').hidden = true"
               />
             </a>
-          ))
-        }
-      </div>
-    </div>
+          </li>
+        ))
+      }
+    </ul>
 
     <div class="mt-8 text-center">
       <a
@@ -84,71 +90,39 @@ const strings = {
 </section>
 
 <script>
-  const root = document.getElementById("ig-gallery");
-  if (root) {
-    const s = JSON.parse(root.dataset.strings || "{}");
-    const max = Number(root.dataset.max || 9);
-
-    const loadEmbedScript = () => {
-      if (document.getElementById("ig-embed-js")) {
-        // @ts-expect-error — API global de Instagram
-        window.instgrm?.Embeds?.process?.();
-        return;
-      }
-      const sc = document.createElement("script");
-      sc.id = "ig-embed-js";
-      sc.async = true;
-      sc.src = "https://www.instagram.com/embed.js";
-      document.body.appendChild(sc);
-    };
-
-    const renderOembed = (items: { html: string }[]) => {
-      const grid = document.createElement("div");
-      grid.className = "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3";
-      items.slice(0, max).forEach((it) => {
-        const cell = document.createElement("div");
-        cell.innerHTML = it.html;
-        const bq = cell.querySelector<HTMLElement>(".instagram-media");
-        if (bq) {
-          bq.style.margin = "0";
-          bq.style.minWidth = "0";
-          bq.style.width = "100%";
-        }
-        grid.appendChild(cell);
-      });
-      root.replaceChildren(grid);
-      loadEmbedScript();
-    };
-
-    const renderFeed = (items: any[]) => {
-      const grid = document.createElement("div");
-      grid.className = "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3";
-      items.slice(0, max).forEach((it) => {
-        const a = document.createElement("a");
-        a.href = it.permalink;
-        a.target = "_blank";
-        a.rel = "noopener";
-        a.className = "group relative block aspect-square overflow-hidden rounded-lg bg-sand-200";
-        a.setAttribute("aria-label", s.openPost || "Instagram");
-        const img = document.createElement("img");
-        img.src = it.thumbnailUrl || it.mediaUrl;
-        img.alt = (it.caption || "").slice(0, 120);
-        img.loading = "lazy";
-        img.decoding = "async";
-        img.className =
-          "h-full w-full object-cover transition-transform duration-500 group-hover:scale-105";
-        a.appendChild(img);
-        grid.appendChild(a);
-      });
-      root.replaceChildren(grid);
-    };
+  const grid = document.getElementById("ig-grid");
+  if (grid && grid.dataset.auto === "1") {
+    const max = Number(grid.dataset.max || 6);
+    const openPost = grid.dataset.openpost || "Instagram";
 
     fetch("/api/gallery")
       .then((r) => r.json())
-      .then((data: { mode: string; items?: any[] }) => {
-        if (data.mode === "oembed" && data.items?.length) renderOembed(data.items);
-        else if (data.mode === "feed" && data.items?.length) renderFeed(data.items);
-        // "manual": se queda el baseline ya renderizado
+      .then((data: { items?: { permalink: string; image: string; alt: string }[] }) => {
+        const items = (data.items || []).filter((i) => i.image).slice(0, max);
+        if (!items.length) return; // se queda el baseline
+        grid.replaceChildren(
+          ...items.map((it) => {
+            const li = document.createElement("li");
+            const a = document.createElement("a");
+            a.href = it.permalink;
+            a.target = "_blank";
+            a.rel = "noopener";
+            a.className = "group block aspect-square overflow-hidden rounded-lg bg-sand-200";
+            a.setAttribute("aria-label", openPost);
+            const img = document.createElement("img");
+            img.src = it.image;
+            img.alt = it.alt || "";
+            img.loading = "lazy";
+            img.decoding = "async";
+            img.referrerPolicy = "no-referrer";
+            img.className =
+              "h-full w-full object-cover transition-transform duration-500 group-hover:scale-105";
+            img.onerror = () => (li.hidden = true);
+            a.appendChild(img);
+            li.appendChild(a);
+            return li;
+          }),
+        );
       })
       .catch(() => {});
   }
