@@ -18,14 +18,15 @@ const max = gallery.maxItems || 6;
 // sustituye por el feed que devuelve /api/gallery. Las demás se resuelven aquí.
 const isAuto = gallery.source === "instagram";
 
-const manualItems: GalleryItem[] = gallery.manualImages.slice(0, max).map((m) => ({
+const manualItems: GalleryItem[] = (gallery.manualImages ?? []).slice(0, max).map((m) => ({
   permalink: m.link || settings.instagramUrl,
   image: m.image.url,
   alt: pick(m.image.alt, locale),
 }));
 
 let items: GalleryItem[];
-if (gallery.source === "posts") items = postUrlsToItems(gallery.instagramPostUrls).slice(0, max);
+if (gallery.source === "posts")
+  items = postUrlsToItems(gallery.instagramPostUrls ?? []).slice(0, max);
 else if (gallery.source === "manual") items = manualItems;
 else items = manualItems; // baseline para behold / instagram
 

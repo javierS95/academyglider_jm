@@ -5,10 +5,10 @@
  *   npm run seed                       # genera seed/demo.ndjson
  *   cd studio && npm run seed          # sanity dataset import ../seed/demo.ndjson production --replace
  *
- * NOTA: las imágenes NO se incluyen (los editores las suben desde el Studio).
- * El sitio funciona igual: si falta una imagen usa el marcador DEMO local.
+ * Imágenes: sólo se incluyen las fotos reales de `public/photos/*` (se suben con
+ * `_sanityAsset`). Los marcadores `/demo/*` NO se suben (el editor pone la imagen real).
  */
-import { writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -20,6 +20,18 @@ const { demoContent } = await import(pathToFileURL(join(root, "src/data/demoCont
 const ls = (v) => (v ? { _type: "localeString", es: v.es ?? "", en: v.en ?? "" } : undefined);
 const lt = (v) => (v ? { _type: "localeText", es: v.es ?? "", en: v.en ?? "" } : undefined);
 const clean = (o) => JSON.parse(JSON.stringify(o, (_, x) => (x === undefined ? undefined : x)));
+
+/** Imagen -> objeto `localizedImage` con asset a subir, sólo si es una foto real de /photos/. */
+const img = (im) => {
+  if (!im?.url?.startsWith("/photos/")) return undefined;
+  const file = join(root, "public", im.url);
+  if (!existsSync(file)) return undefined;
+  return {
+    _type: "localizedImage",
+    _sanityAsset: `image@${pathToFileURL(file).href}`,
+    alt: ls(im.alt),
+  };
+};
 
 const c = demoContent;
 const docs = [];
@@ -46,6 +58,7 @@ docs.push(
     ctaLabel: ls(c.home.ctaLabel),
     secondaryCtaLabel: ls(c.home.secondaryCtaLabel),
     complementaryText: lt(c.home.complementaryText),
+    heroMedia: img(c.home.heroMedia),
   }),
 );
 
@@ -91,6 +104,7 @@ docs.push(
     title: ls(c.ctaFinal.title),
     text: lt(c.ctaFinal.text),
     buttonLabel: ls(c.ctaFinal.buttonLabel),
+    backgroundMedia: img(c.ctaFinal.backgroundMedia),
   }),
 );
 
@@ -136,6 +150,7 @@ for (const co of c.courses) {
       currency: co.currency,
       features: co.features.map(ls),
       level: co.level,
+      image: img(co.image),
       pagoHabilitado: co.pagoHabilitado,
     }),
   );

@@ -81,6 +81,19 @@ export function urlForImage(source: unknown) {
   return builder.image(source as never);
 }
 
+/** Elimina recursivamente claves con valor null (GROQ las usa para campos vacíos). */
+function stripNull<T>(value: T): T {
+  if (Array.isArray(value)) return value.map(stripNull) as unknown as T;
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value)) {
+      if (v !== null) out[k] = stripNull(v);
+    }
+    return out as T;
+  }
+  return value;
+}
+
 let cache: SiteContent | null = null;
 
 export async function getSiteContent(): Promise<SiteContent> {
@@ -90,8 +103,11 @@ export async function getSiteContent(): Promise<SiteContent> {
     return cache;
   }
   try {
-    const data = await sanityClient.fetch<Partial<SiteContent>>(SITE_QUERY);
-    // Fusión defensiva: si a Sanity le falta algún singleton, se completa con el DEMO.
+    const raw = await sanityClient.fetch<Partial<SiteContent>>(SITE_QUERY);
+    // GROQ devuelve `null` (no `undefined`) para campos ausentes; quítalos para que
+    // el spread no pise los valores por defecto con null.
+    const data = stripNull(raw) as Partial<SiteContent>;
+    // Fusión defensiva: si a Sanity le falta algún singleton/campo, se completa con el DEMO.
     cache = {
       ...demoContent,
       ...data,
@@ -101,7 +117,7 @@ export async function getSiteContent(): Promise<SiteContent> {
       gallery: { ...demoContent.gallery, ...data.gallery },
       location: { ...demoContent.location, ...data.location },
       ctaFinal: { ...demoContent.ctaFinal, ...data.ctaFinal },
-      footer: { ...demoContent.footer, ...data.footer },
+      footer: { ...demoContent.footer, ...data.footer, legalLinks: data.footer?.legalLinks ?? [] },
       headers: { ...demoContent.headers, ...data.headers },
       courses: data.courses?.length ? data.courses : demoContent.courses,
       reviews: data.reviews?.length ? data.reviews : demoContent.reviews,

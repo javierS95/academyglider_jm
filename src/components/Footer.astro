@@ -58,7 +58,7 @@ const year = new Date().getFullYear();
     >
       <p>© {year} AcademyGlider. {t("footer.rights")}</p>
       {
-        footer.showLegal && footer.legalLinks.length > 0 && (
+        footer.showLegal && (footer.legalLinks?.length ?? 0) > 0 && (
           <nav class="flex gap-4">
             {footer.legalLinks.map((l) => (
               <a href={l.url} class="hover:text-sand-100">

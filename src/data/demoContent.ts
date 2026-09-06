@@ -1,17 +1,20 @@
 /**
- * CONTENIDO DEMO + CONTENIDO REAL (fallback local).
+ * CONTENIDO DEL SITIO (fallback local + fuente del seed de Sanity).
  *
- * Este módulo cumple dos funciones:
- *  1. Fallback de desarrollo cuando NO hay Sanity configurado (PUBLIC_SANITY_PROJECT_ID vacío).
- *  2. Fuente para el seed inicial de Sanity (scripts/export-demo-ndjson.mjs).
+ *  1. Fallback cuando NO hay Sanity configurado (PUBLIC_SANITY_PROJECT_ID vacío).
+ *  2. Fuente para `scripts/export-demo-ndjson.mjs` → `seed/demo.ndjson`.
  *
- * REGLA: sólo es "real" lo confirmado en el prompt del cliente. Todo lo demás lleva
- * isDemo: true y se muestra con el badge "CONTENIDO DEMO — REEMPLAZAR".
+ * REAL (confirmado o rescatado del borrador de julio 2026 del propio cliente):
+ *  - about  → texto de Javier Martínez (del prompt, sin alterar)
+ *  - courses → 3 cursos con descripciones ES/EN (borrador de julio, revisar con Javier)
+ *  - reviews[0] → reseña real de Javier Serrano
+ *  - faqCategories / faqItems → 6 preguntas con respuestas (borrador de julio)
+ *  - home hero → textos del borrador de julio
+ *  - settings.whatsapp / instagram · location.placeName + attentionNote
+ *  - public/photos/*.jpg → fotos reales de AcademyGlider (hero + CTA)
  *
- * Contenido REAL incluido aquí:
- *  - about  (texto de Javier Martínez, tal cual; traducción EN pendiente de su revisión)
- *  - settings.whatsapp / settings.instagram
- *  - location.placeName + location.attentionNote  (dirección aún pendiente)
+ * DEMO (marcado, reemplazar desde el CMS): complementaryText del Home, CTA final,
+ * reviews[1..2], imágenes de cursos y de "Quiénes somos", dirección/mapa exactos.
  */
 import type { SiteContent } from "@/types";
 
@@ -36,26 +39,26 @@ export const demoContent: SiteContent = {
   },
 
   home: {
-    isDemo: true,
-    title: {
-      es: `${DEMO} Aprende a volar en parapente`,
-      en: `${DEMO} Learn to fly a paraglider`,
-    },
+    isDemo: false,
+    title: { es: "Bienvenid@ a AcademyGlider", en: "Welcome to AcademyGlider" },
     subtitle: {
-      es: `${DEMO} Formación progresiva, segura y conectada con la naturaleza de Chile.`,
-      en: `${DEMO} Progressive, safe training, connected with the nature of Chile.`,
+      es: "Disfruta el sentimiento de libertad al volar.",
+      en: "Enjoy the feeling of freedom while flying.",
     },
     ctaLabel: { es: "Escríbenos por WhatsApp", en: "Message us on WhatsApp" },
-    secondaryCtaLabel: { es: "Ver los cursos", en: "See the courses" },
+    secondaryCtaLabel: {
+      es: "Comienza tu camino y conviértete en piloto",
+      en: "Start your journey and become a pilot",
+    },
     complementaryText: {
-      es: `${DEMO} Texto complementario provisional del Home. Aquí irá una frase breve sobre la escuela, la metodología y la experiencia de volar al atardecer. Se reemplazará desde el CMS.`,
-      en: `${DEMO} Provisional supporting text for the Home section. A short line about the school, the methodology and the experience of flying at sunset will go here. To be replaced from the CMS.`,
+      es: `${DEMO} Frase complementaria del Home (metodología, seguridad, la experiencia de volar al atardecer). Reemplazar desde el CMS.`,
+      en: `${DEMO} Supporting line for the Home section (methodology, safety, the experience of flying at sunset). Replace from the CMS.`,
     },
     heroMedia: {
-      url: "/demo/hero.svg",
+      url: "/photos/pilot-coastal-launch.jpg",
       alt: {
-        es: `${DEMO} Parapente volando sobre montañas al atardecer`,
-        en: `${DEMO} Paraglider flying over mountains at sunset`,
+        es: "Piloto de AcademyGlider despegando en parapente frente a la costa",
+        en: "AcademyGlider pilot launching a paraglider by the coast",
       },
     },
   },
@@ -82,73 +85,123 @@ export const demoContent: SiteContent = {
     photo: {
       url: "/demo/about.svg",
       alt: {
-        es: "Javier Martínez, instructor de AcademyGlider",
-        en: "Javier Martínez, AcademyGlider instructor",
+        es: `${DEMO} Foto de Javier Martínez (pendiente)`,
+        en: `${DEMO} Photo of Javier Martínez (pending)`,
       },
     },
   },
 
   courses: [
     {
-      _id: "course-demo-1",
-      slug: "curso-iniciacion-demo",
-      isDemo: true,
+      _id: "course-principiantes",
+      slug: "curso-para-principiantes",
+      isDemo: false,
       active: true,
       order: 1,
-      title: { es: `${DEMO} Curso de Iniciación`, en: `${DEMO} Beginner Course` },
+      title: { es: "Curso para principiantes", en: "Course for beginners" },
       shortDescription: {
-        es: "Tu primer contacto con el parapente: teoría básica, manejo de vela en tierra y primeros vuelos.",
-        en: "Your first contact with paragliding: basic theory, ground handling and first flights.",
+        es: "Aprende desde cero con acompañamiento personalizado y grupos reducidos. Da tu primer paso con confianza.",
+        en: "Learn from scratch with personalized support and small groups. Take your first step with confidence.",
       },
       longDescription: {
-        es: `${DEMO} Descripción larga provisional del curso de iniciación. Se detallará el temario, la progresión y lo que incluye. Reemplazar con información real desde el CMS.`,
-        en: `${DEMO} Provisional long description of the beginner course. Syllabus, progression and what's included will be detailed here. Replace with real information from the CMS.`,
+        es: "Este curso para principiantes está diseñado para quienes quieren aprender desde cero, sin conocimientos previos. A través de clases prácticas y contenido claro, irás construyendo una base sólida que te preparará para seguir avanzando con confianza.\n\nLo que aprenderás:\n- Conceptos fundamentales explicados de forma simple\n- Ejercicios prácticos guiados paso a paso\n- Acompañamiento personalizado durante todo el proceso\n\nIdeal si estás recién comenzando y quieres dar el primer paso de forma segura y guiada. Escríbenos por WhatsApp si tienes dudas antes de inscribirte.",
+        en: "This beginner course is designed for those who want to learn from scratch, with no prior experience required. Through hands-on classes and clear content, you'll build a solid foundation that prepares you to keep advancing with confidence.\n\nWhat you'll learn:\n- Core concepts explained in simple terms\n- Guided, step-by-step practical exercises\n- Personalized support throughout the process\n\nPerfect if you're just getting started and want to take your first step in a safe, guided way. Message us on WhatsApp if you have questions before enrolling.",
       },
-      duration: { es: "8 días (ejemplo)", en: "8 days (example)" },
-      price: 690000,
-      currency: "CLP",
-      priceDisplayMode: "mostrar",
-      features: [
-        { es: "Equipo incluido durante el curso", en: "Equipment included during the course" },
-        { es: "Grupos reducidos", en: "Small groups" },
-        { es: "Teoría + práctica en ladera", en: "Theory + slope practice" },
-        { es: "Seguro de accidentes (ejemplo)", en: "Accident insurance (example)" },
-      ],
-      level: "principiante",
-      image: {
-        url: "/demo/course-1.svg",
-        alt: { es: `${DEMO} Curso de iniciación`, en: `${DEMO} Beginner course` },
-      },
-      pagoHabilitado: false,
-    },
-    {
-      _id: "course-demo-2",
-      slug: "curso-perfeccionamiento-demo",
-      isDemo: true,
-      active: true,
-      order: 2,
-      title: { es: `${DEMO} Curso de Perfeccionamiento`, en: `${DEMO} Advanced Course` },
-      shortDescription: {
-        es: "Para pilotos con base previa que quieren dar el siguiente paso: autonomía, térmica y toma de decisiones.",
-        en: "For pilots with a prior base who want the next step: autonomy, thermalling and decision-making.",
-      },
-      longDescription: {
-        es: `${DEMO} Descripción larga provisional del curso de perfeccionamiento. Reemplazar con información real desde el CMS.`,
-        en: `${DEMO} Provisional long description of the advanced course. Replace with real information from the CMS.`,
-      },
-      duration: { es: "5 días (ejemplo)", en: "5 days (example)" },
+      duration: { es: "Consúltanos", en: "Ask us" },
       price: 0,
       currency: "CLP",
       priceDisplayMode: "consultar",
       features: [
-        { es: "Análisis de vuelo con video", en: "Video flight analysis" },
-        { es: "Vuelos guiados por radio", en: "Radio-guided flights" },
+        { es: "Sin experiencia previa", en: "No prior experience needed" },
+        { es: "Grupos reducidos", en: "Small groups" },
+        { es: "Acompañamiento personalizado", en: "Personalized support" },
+        { es: "Clases prácticas paso a paso", en: "Hands-on, step-by-step classes" },
+      ],
+      level: "principiante",
+      image: {
+        url: "/demo/course-1.svg",
+        alt: {
+          es: `${DEMO} Foto del curso para principiantes (pendiente)`,
+          en: `${DEMO} Beginner course photo (pending)`,
+        },
+      },
+      pagoHabilitado: false,
+    },
+    {
+      _id: "course-ppg2",
+      slug: "curso-perfeccionamiento-ppg2",
+      isDemo: false,
+      active: true,
+      order: 2,
+      title: {
+        es: "Curso de Perfeccionamiento (PPG2)",
+        en: "Advanced Course (PPG2)",
+      },
+      shortDescription: {
+        es: "Para pilotos con brevet PPG1 que quieren volar con más autonomía: térmica, distancia y toma de decisiones en el aire.",
+        en: "For pilots who already hold a PPG1 license and want to fly with more autonomy: thermalling, cross-country flying and in-air decision making.",
+      },
+      longDescription: {
+        es: "Este curso está pensado para pilotos brevetados que quieren dar el siguiente paso: volar con más autonomía, entender mejor el clima y empezar a aprovechar térmicas para ganar altura y distancia.\n\nLo que aprenderás:\n- Lectura de condiciones y meteorología básica\n- Vuelo térmico y ganancia de altura\n- Toma de decisiones y gestión de riesgo en el aire\n- Introducción al vuelo de distancia\n\n¿Ya tienes tu PPG1 y quieres seguir avanzando? Escríbenos por WhatsApp para coordinar tu cupo.",
+        en: "This course is designed for licensed pilots who want to take the next step: flying with more autonomy, better understanding weather conditions, and starting to use thermals to gain altitude and distance.\n\nWhat you'll learn:\n- Reading conditions and basic weather patterns\n- Thermal flying and altitude gain\n- In-air decision making and risk management\n- Introduction to cross-country flying\n\nAlready have your PPG1? Message us on WhatsApp to coordinate your spot.",
+      },
+      duration: { es: "4 fines de semana", en: "4 weekends" },
+      price: 0,
+      currency: "CLP",
+      priceDisplayMode: "consultar",
+      features: [
+        { es: "Requiere brevet PPG1", en: "PPG1 license required" },
+        { es: "Vuelo térmico y ganancia de altura", en: "Thermal flying and altitude gain" },
         { es: "Meteorología aplicada", en: "Applied meteorology" },
+        { es: "Introducción al vuelo de distancia", en: "Intro to cross-country flying" },
       ],
       level: "avanzado",
       image: {
         url: "/demo/course-2.svg",
-        alt: { es: `${DEMO} Curso de perfeccionamiento`, en: `${DEMO} Advanced course` },
+        alt: {
+          es: `${DEMO} Foto del curso PPG2 (pendiente)`,
+          en: `${DEMO} PPG2 course photo (pending)`,
+        },
+      },
+      pagoHabilitado: false,
+    },
+    {
+      _id: "course-biplaza",
+      slug: "vuelo-biplaza",
+      isDemo: false,
+      active: true,
+      order: 3,
+      title: {
+        es: "Vuelo Biplaza (Bautismo de Vuelo)",
+        en: "Tandem Flight (Discovery Flight)",
+      },
+      shortDescription: {
+        es: "Vuela junto a un piloto instructor, sin conocimientos previos. Ideal como primer acercamiento antes de un curso.",
+        en: "Fly together with an instructor pilot, no prior knowledge needed. A perfect first taste before a full course.",
+      },
+      longDescription: {
+        es: "El vuelo biplaza es la forma más simple de descubrir qué se siente volar en parapente. Vuelas acompañado en todo momento por un piloto instructor, sin necesidad de experiencia ni preparación previa.\n\nIdeal si:\n- Quieres regalar o regalarte una experiencia distinta\n- Estás evaluando si te gustaría hacer el curso completo\n- Simplemente quieres vivir la sensación de volar al menos una vez\n\nAgenda tu vuelo biplaza por WhatsApp y vive la experiencia.",
+        en: "A tandem flight is the simplest way to discover what paragliding feels like. You fly the whole time alongside an instructor pilot, with no experience or preparation required.\n\nPerfect if:\n- You want to give (or treat yourself to) a unique experience\n- You're deciding whether to take the full course\n- You simply want to feel what flying is like, at least once\n\nBook your tandem flight on WhatsApp and live the experience.",
+      },
+      duration: {
+        es: "Aprox. 20-30 minutos de vuelo",
+        en: "Approx. 20-30 minute flight",
+      },
+      price: 0,
+      currency: "CLP",
+      priceDisplayMode: "consultar",
+      features: [
+        { es: "Sin experiencia previa", en: "No prior experience needed" },
+        { es: "Vuelas con un piloto instructor", en: "You fly with an instructor pilot" },
+        { es: "Ideal para regalar", en: "A great gift" },
+      ],
+      level: "otro",
+      image: {
+        url: "/photos/sunset-flight.jpg",
+        alt: {
+          es: "Parapente en vuelo al atardecer sobre el valle",
+          en: "Paraglider in flight at sunset over the valley",
+        },
       },
       pagoHabilitado: false,
     },
@@ -156,18 +209,17 @@ export const demoContent: SiteContent = {
 
   reviews: [
     {
-      _id: "review-demo-1",
-      isDemo: true,
+      _id: "review-javier-serrano",
+      isDemo: false,
       active: true,
       order: 1,
-      authorName: "[REVIEW DEMO] Camila R.",
+      authorName: "Javier Serrano",
       rating: 5,
       text: {
-        es: `${DEMO} Testimonio de demostración. Aquí aparecerá una reseña real de un alumno o alumna, ingresada desde el CMS.`,
-        en: `${DEMO} Demonstration testimonial. A real student review, entered from the CMS, will appear here.`,
+        es: "Increíble el curso y la academia, Javier se da el tiempo de responder cada pregunta antes, durante y después del curso. Ya lo terminé y hasta el día de hoy sigue súper abierto a seguir enseñando cosas más avanzadas poco a poco. Te orientan súper bien qué equipo comprar según también tu presupuesto. Recomendado 10 de 10.",
+        en: "Amazing course and academy. Javier takes the time to answer every question before, during and after the course. I already finished it, and to this day he's still very open to keep teaching more advanced things little by little. They guide you really well on what equipment to buy according to your budget too. 10 out of 10, highly recommended.",
       },
-      courseName: { es: "Curso de Iniciación", en: "Beginner Course" },
-      photo: { url: "/demo/review-1.svg", alt: { es: "[REVIEW DEMO]", en: "[REVIEW DEMO]" } },
+      courseName: { es: "Curso para principiantes", en: "Course for beginners" },
     },
     {
       _id: "review-demo-2",
@@ -177,10 +229,9 @@ export const demoContent: SiteContent = {
       authorName: "[REVIEW DEMO] Matías P.",
       rating: 5,
       text: {
-        es: `${DEMO} Testimonio de demostración número dos. Reemplazar con contenido real desde el CMS.`,
-        en: `${DEMO} Demonstration testimonial number two. Replace with real content from the CMS.`,
+        es: `${DEMO} Testimonio de demostración. Reemplazar con una reseña real desde el CMS.`,
+        en: `${DEMO} Demonstration testimonial. Replace with a real review from the CMS.`,
       },
-      photo: { url: "/demo/review-2.svg", alt: { es: "[REVIEW DEMO]", en: "[REVIEW DEMO]" } },
     },
     {
       _id: "review-demo-3",
@@ -190,110 +241,115 @@ export const demoContent: SiteContent = {
       authorName: "[REVIEW DEMO] Antonia L.",
       rating: 4,
       text: {
-        es: `${DEMO} Testimonio de demostración número tres. Reemplazar con contenido real desde el CMS.`,
-        en: `${DEMO} Demonstration testimonial number three. Replace with real content from the CMS.`,
+        es: `${DEMO} Testimonio de demostración. Reemplazar con una reseña real desde el CMS.`,
+        en: `${DEMO} Demonstration testimonial. Replace with a real review from the CMS.`,
       },
-      courseName: { es: "Curso de Perfeccionamiento", en: "Advanced Course" },
-      photo: { url: "/demo/review-3.svg", alt: { es: "[REVIEW DEMO]", en: "[REVIEW DEMO]" } },
+      courseName: { es: "Curso de Perfeccionamiento (PPG2)", en: "Advanced Course (PPG2)" },
     },
   ],
 
   faqCategories: [
     {
-      _id: "faqcat-1",
+      _id: "faqcat-cursos",
       active: true,
       order: 1,
-      name: { es: "Antes de empezar", en: "Before you start" },
+      name: { es: "Sobre los cursos", en: "About the courses" },
     },
+    { _id: "faqcat-seguridad", active: true, order: 2, name: { es: "Seguridad", en: "Safety" } },
     {
-      _id: "faqcat-2",
+      _id: "faqcat-reservas",
       active: true,
-      order: 2,
-      name: { es: "Durante el curso", en: "During the course" },
-    },
-    { _id: "faqcat-3", active: true, order: 3, name: { es: "Seguridad", en: "Safety" } },
-    {
-      _id: "faqcat-4",
-      active: true,
-      order: 4,
-      name: { es: "Reservas y pagos", en: "Booking & payments" },
+      order: 3,
+      name: { es: "Reservas y contacto", en: "Booking & contact" },
     },
   ],
 
   faqItems: [
     {
-      _id: "faq-1",
-      isDemo: true,
+      _id: "faq-experiencia-previa",
+      isDemo: false,
       active: true,
       order: 1,
-      categoryId: "faqcat-1",
+      categoryId: "faqcat-cursos",
       question: {
-        es: "[FAQ DEMO] ¿Necesito experiencia previa?",
-        en: "[FAQ DEMO] Do I need previous experience?",
+        es: "¿Necesito experiencia previa para tomar el curso?",
+        en: "Do I need prior experience to take the course?",
       },
       answer: {
-        es: `${DEMO} Respuesta provisional. La respuesta real se configurará desde el CMS.`,
-        en: `${DEMO} Provisional answer. The real answer will be configured from the CMS.`,
+        es: "No, nuestros cursos están diseñados para personas sin experiencia previa. Empezamos desde cero y avanzamos a tu ritmo.",
+        en: "No, our courses are designed for people with no prior experience. We start from scratch and move at your own pace.",
       },
     },
     {
-      _id: "faq-2",
-      isDemo: true,
+      _id: "faq-edad-minima",
+      isDemo: false,
       active: true,
       order: 2,
-      categoryId: "faqcat-1",
+      categoryId: "faqcat-cursos",
       question: {
-        es: "[FAQ DEMO] ¿Qué ropa y calzado llevo?",
-        en: "[FAQ DEMO] What clothing and footwear should I bring?",
+        es: "¿Qué edad mínima se requiere para volar en parapente?",
+        en: "What is the minimum age to fly paragliding?",
       },
       answer: {
-        es: `${DEMO} Respuesta provisional sobre indumentaria. Reemplazar desde el CMS.`,
-        en: `${DEMO} Provisional answer about clothing. Replace from the CMS.`,
+        es: "En general se recomienda desde los 14-16 años con autorización de un adulto responsable. Escríbenos y te confirmamos según el curso que te interesa.",
+        en: "Generally recommended from age 14-16 with authorization from a responsible adult. Message us and we'll confirm based on the course you're interested in.",
       },
     },
     {
-      _id: "faq-3",
-      isDemo: true,
+      _id: "faq-duracion-curso",
+      isDemo: false,
       active: true,
-      order: 1,
-      categoryId: "faqcat-2",
+      order: 3,
+      categoryId: "faqcat-cursos",
       question: {
-        es: "[FAQ DEMO] ¿Cuántas personas hay por grupo?",
-        en: "[FAQ DEMO] How many people are in each group?",
+        es: "¿Cuánto dura el curso completo?",
+        en: "How long does the full course take?",
       },
       answer: {
-        es: `${DEMO} Respuesta provisional sobre el tamaño de los grupos. Reemplazar desde el CMS.`,
-        en: `${DEMO} Provisional answer about group size. Replace from the CMS.`,
+        es: "Depende del curso: el curso para principiantes y el de perfeccionamiento (PPG2) tienen distintas duraciones. Revisa el detalle en la sección Cursos o escríbenos.",
+        en: "It depends on the course: the beginner course and the advanced course (PPG2) have different durations. Check the details in the Courses section or message us.",
       },
     },
     {
-      _id: "faq-4",
-      isDemo: true,
+      _id: "faq-que-llevar",
+      isDemo: false,
       active: true,
-      order: 1,
-      categoryId: "faqcat-3",
+      order: 4,
+      categoryId: "faqcat-cursos",
       question: {
-        es: "[FAQ DEMO] ¿Qué pasa si las condiciones no son buenas?",
-        en: "[FAQ DEMO] What happens if conditions aren't good?",
+        es: "¿Qué debo llevar el primer día de clases?",
+        en: "What should I bring on my first day of class?",
       },
       answer: {
-        es: `${DEMO} Respuesta provisional sobre meteorología y reprogramación. Reemplazar desde el CMS.`,
-        en: `${DEMO} Provisional answer about weather and rescheduling. Replace from the CMS.`,
+        es: "Ropa cómoda y abrigada, zapatillas o botas cerradas, protector solar y muchas ganas de aprender. Nosotros ponemos el equipo durante el curso.",
+        en: "Comfortable, warm clothing, closed shoes or boots, sunscreen, and lots of enthusiasm to learn. We provide the gear during the course.",
       },
     },
     {
-      _id: "faq-5",
-      isDemo: true,
+      _id: "faq-peligroso",
+      isDemo: false,
       active: true,
       order: 1,
-      categoryId: "faqcat-4",
+      categoryId: "faqcat-seguridad",
+      question: { es: "¿Es peligroso el parapente?", en: "Is paragliding dangerous?" },
+      answer: {
+        es: "Como todo deporte aéreo tiene riesgos, pero se gestionan activamente con instrucción adecuada, equipo certificado y buenas decisiones sobre las condiciones climáticas.",
+        en: "Like any air sport it carries risk, but it's actively managed through proper instruction, certified gear, and good decisions about weather conditions.",
+      },
+    },
+    {
+      _id: "faq-inscripcion",
+      isDemo: false,
+      active: true,
+      order: 1,
+      categoryId: "faqcat-reservas",
       question: {
-        es: "[FAQ DEMO] ¿Cómo reservo mi cupo?",
-        en: "[FAQ DEMO] How do I book my spot?",
+        es: "¿Cómo me inscribo o agendo una clase?",
+        en: "How do I enroll or book a class?",
       },
       answer: {
-        es: `${DEMO} Por ahora la coordinación es por WhatsApp. Respuesta real pendiente de configurar en el CMS.`,
-        en: `${DEMO} For now, coordination is via WhatsApp. Real answer pending configuration in the CMS.`,
+        es: "Escríbenos por WhatsApp y coordinamos tu cupo según disponibilidad.",
+        en: "Message us on WhatsApp and we'll coordinate your spot based on availability.",
       },
     },
   ],
@@ -350,8 +406,11 @@ export const demoContent: SiteContent = {
     },
     buttonLabel: { es: "Coordinar por WhatsApp", en: "Coordinate on WhatsApp" },
     backgroundMedia: {
-      url: "/demo/cta.svg",
-      alt: { es: `${DEMO} Atardecer desde el aire`, en: `${DEMO} Sunset from the air` },
+      url: "/photos/sunset-flight.jpg",
+      alt: {
+        es: "Parapente al atardecer sobre el valle",
+        en: "Paraglider at sunset over the valley",
+      },
     },
   },
 
@@ -363,11 +422,11 @@ export const demoContent: SiteContent = {
 
   headers: {
     courses: {
-      isDemo: true,
+      isDemo: false,
       title: { es: "Cursos", en: "Courses" },
       intro: {
-        es: `${DEMO} Introducción provisional a los cursos. Reemplazar desde el CMS.`,
-        en: `${DEMO} Provisional intro to the courses. Replace from the CMS.`,
+        es: "Cursos y experiencias para empezar en el parapente o llevar tu vuelo al siguiente nivel.",
+        en: "Courses and experiences to start paragliding or take your flying to the next level.",
       },
     },
     gallery: {
@@ -379,23 +438,23 @@ export const demoContent: SiteContent = {
       },
     },
     reviews: {
-      isDemo: true,
+      isDemo: false,
       title: { es: "Reseñas", en: "Reviews" },
       intro: {
-        es: `${DEMO} Introducción provisional a las reseñas. Reemplazar desde el CMS.`,
-        en: `${DEMO} Provisional intro to the reviews. Replace from the CMS.`,
+        es: "Lo que dicen quienes ya volaron con nosotros.",
+        en: "What people who have already flown with us say.",
       },
     },
     faq: {
-      isDemo: true,
+      isDemo: false,
       title: { es: "Preguntas frecuentes", en: "FAQ" },
       intro: {
-        es: `${DEMO} Elige una categoría y una pregunta para ver la respuesta.`,
-        en: `${DEMO} Choose a category and a question to see the answer.`,
+        es: "Elige una categoría y una pregunta para ver la respuesta.",
+        en: "Choose a category and a question to see the answer.",
       },
       welcome: {
-        es: `${DEMO} ¡Hola! ¿Sobre qué te gustaría saber?`,
-        en: `${DEMO} Hi! What would you like to know about?`,
+        es: "¡Hola! ¿Sobre qué te gustaría saber?",
+        en: "Hi! What would you like to know about?",
       },
     },
     location: {

@@ -5,9 +5,11 @@ Sitio de una sola página (scroll), bilingüe (ES/EN), con todo el contenido edi
 CMS **sin tocar código**, galería alimentada por Instagram y WhatsApp como canal principal de
 contacto.
 
-> **Estado:** versión inicial con **contenido de demostración** claramente marcado
-> (`[CONTENIDO DEMO — REEMPLAZAR]`). Ver [§ Contenido DEMO vs real](#contenido-demo-vs-real)
-> y [§ Información que todavía falta](#información-que-todavía-falta).
+> **Estado:** CMS conectado (Sanity, dataset `web`, Studio en
+> <https://academyglider.sanity.studio>). Cursos, FAQ, una reseña, textos del Home y fotos
+> del Home/CTA son **reales**; lo pendiente va marcado `[CONTENIDO DEMO — REEMPLAZAR]`.
+> Ver [§ Contenido DEMO vs real](#contenido-demo-vs-real) y
+> [§ Información que todavía falta](#información-que-todavía-falta).
 
 ---
 
@@ -91,11 +93,12 @@ academyglider_jm/
 ├── scripts/
 │   ├── gen-demo-assets.mjs   # genera los SVG de marcador en public/demo/
 │   └── export-demo-ndjson.mjs# genera seed/demo.ndjson desde demoContent.ts
-├── seed/demo.ndjson          # contenido inicial para importar en Sanity (generado)
+├── seed/                     # NDJSON generado para sembrar Sanity (no versionado)
 ├── public/
 │   ├── logo-academyglider.jpg
 │   ├── favicon.svg
-│   └── demo/                 # imágenes SVG de demostración
+│   ├── photos/               # fotos reales de AcademyGlider (hero, CTA)
+│   └── demo/                 # imágenes SVG de marcador (contenido pendiente)
 ├── src/
 │   ├── pages/
 │   │   ├── index.astro                    # ES  (/)
@@ -143,14 +146,16 @@ cp .env.example .env        # opcional: sin Sanity, el sitio usa el contenido DE
 npm run dev                 # http://localhost:4321
 ```
 
-El Studio de Sanity es un proyecto aparte:
+El Studio de Sanity es un proyecto aparte (ya configurado, ver [§ CMS](#cms-sanity)):
 
 ```bash
 cd studio
 npm install
-# define SANITY_STUDIO_PROJECT_ID (ver §CMS) y luego:
+printf 'SANITY_STUDIO_PROJECT_ID="p0dkvy3j"\nSANITY_STUDIO_DATASET="web"\n' > .env
 npm run dev                 # http://localhost:3333
 ```
+
+> O simplemente edita en <https://academyglider.sanity.studio> sin instalar nada.
 
 ## Variables de entorno
 
@@ -243,36 +248,47 @@ costo) o en **Vercel Domains** y apuntarlo a Vercel (Project → Settings → Do
 
 ## CMS (Sanity)
 
-### Crear el proyecto
+**Ya está configurado y en producción:**
 
-1. `npm create sanity@latest` o desde <https://www.sanity.io/manage> → **Create project**.
-2. Anota el **Project ID** y crea el dataset `production` (público es suficiente; si lo haces
-   privado, genera un token de solo lectura → `SANITY_API_READ_TOKEN`).
-3. Configura el Studio:
-   ```bash
-   cd studio
-   npm install
-   # PowerShell:  $env:SANITY_STUDIO_PROJECT_ID="xxxxx"
-   # bash:        export SANITY_STUDIO_PROJECT_ID=xxxxx
-   npm run dev
-   ```
-   (o crea `studio/.env` con `SANITY_STUDIO_PROJECT_ID=...`).
-4. En el sitio, define `PUBLIC_SANITY_PROJECT_ID` (y demás `PUBLIC_SANITY_*`).
+| Dato                      | Valor                                           |
+| ------------------------- | ----------------------------------------------- |
+| Studio (editar contenido) | <https://academyglider.sanity.studio>           |
+| Project ID                | `p0dkvy3j`                                      |
+| Dataset del sitio         | **`web`** (público)                             |
+| Gestión / miembros        | <https://www.sanity.io/manage/project/p0dkvy3j> |
 
-### Cargar el contenido inicial
+> El dataset `production` del mismo proyecto contiene un **borrador anterior** (julio 2026, otra
+> estructura). No se usa. Se puede borrar desde _Manage_ cuando se confirme que no hace falta.
+
+### Editar contenido
+
+- **En la nube:** entra a <https://academyglider.sanity.studio> con tu cuenta de Sanity.
+- **En local:** `cd studio && npm install && npm run dev` → <http://localhost:3333>
+  (usa `studio/.env` con `SANITY_STUDIO_PROJECT_ID` y `SANITY_STUDIO_DATASET=web`).
+- **Dar acceso a otra persona:** Manage → **Members** → _Invite_ por email (rol `Editor`).
+
+### Re-desplegar el Studio (tras cambiar los schemas)
 
 ```bash
-npm run seed                      # genera seed/demo.ndjson (en la raíz)
-cd studio
-npx sanity dataset import ../seed/demo.ndjson production --replace
+cd studio && npm run deploy
 ```
 
-Esto crea los singletons y el contenido DEMO/real **sin imágenes** (se suben desde el Studio).
+### Volver a sembrar / resetear el contenido
 
-### Acceder / dar acceso
+```bash
+npm run seed                                    # genera seed/demo.ndjson desde demoContent.ts
+cd studio
+npx sanity dataset import ../seed/demo.ndjson web --replace   # sobrescribe
+```
 
-Studio → Manage (o <https://www.sanity.io/manage>) → **Members** → invitar por email. Los
-editores entran con Google o email. Roles: `Editor` es suficiente para el día a día.
+El seed incluye las fotos reales de `public/photos/*`; el resto de imágenes se suben desde el
+Studio. `seed/` no se versiona (se regenera).
+
+### Variables del sitio
+
+`.env` en la raíz (ver `.env.example`): `PUBLIC_SANITY_PROJECT_ID=p0dkvy3j`,
+`PUBLIC_SANITY_DATASET=web`, `PUBLIC_SANITY_API_VERSION=2024-10-01`. En Vercel, las mismas.
+Si `PUBLIC_SANITY_PROJECT_ID` queda vacío, el sitio usa el contenido local de `demoContent.ts`.
 
 ## Estructura del contenido administrable
 
@@ -416,22 +432,26 @@ Lo que habría que añadir cuando se decida:
 
 ## Contenido DEMO vs real
 
-**Real** (confirmado por el cliente, ya cargado):
+**Real** (del prompt del cliente + rescatado de su borrador de Sanity de julio 2026):
 
-- Texto de **Quiénes somos** (Javier Martínez, +20 años). _La traducción al inglés es un
-  borrador pendiente de revisión de Javier._
-- WhatsApp `+56 9 5255 9138` y mensaje.
-- Instagram `@academyglider`.
-- Ubicación: **Geopark Vizcachaz** + nota «atención con agenda previa» (dirección exacta
-  pendiente).
-- Logo (`public/logo-academyglider.jpg`, usado sin modificar).
+- **Quiénes somos** — texto de Javier Martínez (del prompt; traducción EN a validar).
+- **3 cursos** — Curso para principiantes, Perfeccionamiento (PPG2), Vuelo Biplaza. Nombres,
+  resúmenes y descripciones ES/EN. _Del borrador de julio: conviene que Javier los revise._
+  Sin precio (se muestra «Consultar»).
+- **6 FAQ** con respuestas ES/EN en 3 categorías (del borrador de julio; revisar).
+- **1 reseña** real: Javier Serrano, 5★.
+- **Home** — titular y subtítulo del borrador de julio.
+- **Fotos reales** — hero (`pilot-coastal-launch.jpg`) y fondo del CTA (`sunset-flight.jpg`).
+- WhatsApp `+56 9 5255 9138` y mensaje · Instagram `@academyglider`.
+- Ubicación: **Geopark Vizcachaz** + nota «atención con agenda previa» (dirección/mapa exactos
+  pendientes — el borrador de julio tenía un mapa de «Parapente las Vizcachas» que **no** se
+  usó por la diferencia de nombre; confirmar con Javier).
 
-**DEMO** (ejemplos provisionales, marcados con `[CONTENIDO DEMO — REEMPLAZAR]` y badge):
-Home, 2 cursos, 3 reseñas, categorías y preguntas de FAQ, CTA final, intros de secciones,
-imágenes de `public/demo/*.svg`.
+**DEMO** (marcado con `[CONTENIDO DEMO — REEMPLAZAR]` + badge): frase complementaria del Home,
+texto del CTA final, 2 de las 3 reseñas, imágenes de cursos y foto de «Quiénes somos».
 
-Un banner superior avisa a los visitantes mientras `demoMode` esté activo. Al reemplazar todo
-el contenido real, desactiva `demoMode` y pon `isDemo = false` donde corresponda.
+Mientras `siteSettings.demoMode` esté activo, esos elementos muestran el badge. Al terminar de
+cargar lo real: `demoMode = false` y `isDemo = false` donde corresponda.
 
 ## Decisiones técnicas relevantes
 
@@ -468,23 +488,25 @@ el contenido real, desactiva `demoMode` y pon `isDemo = false` donde corresponda
 
 ## Información que todavía falta
 
-Para pasar de DEMO a real (ver también el plan de proyecto):
+Para pasar de DEMO a real (editar en <https://academyglider.sanity.studio>):
 
-- **Ubicación:** dirección exacta / enlace de Google Maps / coordenadas de Geopark Vizcachaz;
-  ¿se muestra la dirección o sólo «coordina por WhatsApp»?
-- **Cursos reales:** nombres, descripciones, duración, precio (¿mostrar u ocultar?), requisitos,
-  qué incluye, nivel, cupos. ¿Cuántos al lanzamiento?
-- **Home:** título, subtítulo, CTA y texto definitivos (ES/EN); media del hero.
-- **Quiénes somos:** ¿foto de Javier? ¿traducción EN propia o validar la borrador?
-- **Reseñas reales.**
-- **FAQ real:** categorías y preguntas/respuestas (ES/EN).
-- **Marca:** logo transparente, paleta, tipografías, referencias visuales.
-- **Legal:** razón social / RUT para el footer; política de privacidad (sólo necesaria si se
-  activa el feed automático de la Graph API).
+- **Cursos:** Javier revisa las 3 descripciones (vienen del borrador de julio). ¿Precios
+  (mostrar/ocultar)? ¿Requisitos, cupos, duración del curso para principiantes?
+- **FAQ:** Javier revisa las 6 respuestas (borrador de julio).
+- **Ubicación:** dirección exacta / enlace de Google Maps / coordenadas de Geopark Vizcachaz.
+  El borrador de julio tenía un mapa de «Parapente las Vizcachas» (−33.5964885, −70.5044263) —
+  confirmar si es el lugar o descartarlo.
+- **Home:** ¿mantener «Bienvenid@ a AcademyGlider» o un titular más potente? Frase
+  complementaria (sigue en DEMO).
+- **CTA final:** texto (sigue en DEMO).
+- **Quiénes somos:** foto de Javier; validar la traducción EN.
+- **Reseñas:** 2 de las 3 son DEMO — reemplazar por reales.
+- **Fotos:** imágenes propias para las tarjetas de curso.
+- **Marca:** logo con fondo transparente (PNG/SVG); paleta y tipografías definitivas.
+- **Legal:** razón social / RUT para el footer; política de privacidad (sólo si se activa la
+  Graph API de Instagram).
 - **Dominio** deseado y quién lo registra.
-- **Galería:** revisar la lista de publicaciones de Instagram del CMS (hoy trae las 6 más
-  recientes del perfil, tomadas en 2026‑09). Sólo si se quiere el feed 100 % automático:
-  acceso admin para crear la app de Meta.
+- **Galería:** revisar la lista de publicaciones de Instagram en el CMS.
 
 ## Troubleshooting
 

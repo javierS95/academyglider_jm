@@ -18,6 +18,10 @@ node_modules/
 # sanity
 studio/dist/
 studio/node_modules/
+studio/.sanity/
+
+# seed generado (rehacer con `npm run seed`; contiene rutas locales a las fotos)
+/seed/
 
 # logs
 npm-debug.log*
