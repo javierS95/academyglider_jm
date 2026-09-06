@@ -14,9 +14,9 @@ const t = useTranslations(locale);
 const { gallery, headers, settings } = content;
 const max = gallery.maxItems || 6;
 
-// Fuentes automáticas: el HTML lleva un baseline (manual) y el script lo sustituye
-// por el feed que devuelve /api/gallery (cacheado 1 día = se refresca a diario).
-const isAuto = gallery.source === "behold" || gallery.source === "instagram";
+// Fuente "instagram" (Graph API): el HTML lleva un baseline y el script lo
+// sustituye por el feed que devuelve /api/gallery. Las demás se resuelven aquí.
+const isAuto = gallery.source === "instagram";
 
 const manualItems: GalleryItem[] = gallery.manualImages.slice(0, max).map((m) => ({
   permalink: m.link || settings.instagramUrl,

@@ -299,23 +299,20 @@ export const demoContent: SiteContent = {
   ],
 
   gallery: {
-    // Fuente "behold": feed JSON automático de @academyglider (sin token, se refresca
-    // 1 vez/día). Conecta la cuenta en behold.so y pega la URL del feed aquí para que
-    // la galería muestre SIEMPRE lo último, sin curar. Mientras no haya feed conectado
-    // se usa la lista "posts" de abajo (portadas de publicaciones reales).
+    // Fuente "posts": lista de URLs de publicaciones. La portada de cada una se
+    // sirve por nuestro proxy /api/ig-image (sin token, sin servicios externos).
+    // Editable desde el CMS. Son las 6 publicaciones más recientes del perfil de
+    // @academyglider (2026-09), SIN filtrar (incluye colaboraciones).
     source: "posts",
     maxItems: 6,
     instagramCtaLabel: { es: "Ver más en Instagram", en: "See more on Instagram" },
-    beholdFeedUrl: "",
-    // Publicaciones reales y públicas de @academyglider (perfil, 2026-09). Interino
-    // hasta conectar Behold: entonces esta lista deja de usarse.
     instagramPostUrls: [
       "https://www.instagram.com/academyglider/reel/DWMHaF3u_sx/",
       "https://www.instagram.com/academyglider/reel/DWG25QEBDMX/",
+      "https://www.instagram.com/javmartinezt/reel/DN6YB9wAR4-/",
       "https://www.instagram.com/academyglider/reel/Dc7OuJOtXV4/",
+      "https://www.instagram.com/javmartinezt/reel/DcXkwEgteME/",
       "https://www.instagram.com/academyglider/reel/DcNUBfDNYMD/",
-      "https://www.instagram.com/academyglider/reel/Db0Y4Z4ufyc/",
-      "https://www.instagram.com/academyglider/reel/DbJCBBjhFpY/",
     ],
     manualImages: Array.from({ length: 6 }, (_, i) => ({
       image: {

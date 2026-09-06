@@ -106,17 +106,14 @@ export interface FaqItem {
 }
 
 export type GallerySource =
-  | "behold" // feed automático vía Behold.so (sin token, se refresca a diario) — recomendado
+  | "posts" // URLs de publicaciones; sus portadas se sirven por /api/ig-image (sin token)
   | "instagram" // feed automático vía Instagram Graph API (requiere token)
-  | "posts" // lista fija de URLs de publicaciones (se muestran sus portadas)
   | "manual"; // imágenes subidas al CMS
 
 export interface GallerySettings {
   source: GallerySource;
   maxItems: number;
   instagramCtaLabel: LocaleString;
-  /** URL del feed JSON de Behold.so cuando source === "behold". */
-  beholdFeedUrl?: string;
   /** URLs de publicaciones cuando source === "posts". */
   instagramPostUrls: string[];
   /** Respaldo: se usa si la fuente elegida no devuelve nada. */

@@ -102,25 +102,13 @@ export const gallerySettings = defineType({
       type: "string",
       options: {
         list: [
-          {
-            title: "Automática — Behold.so (sin token, se refresca a diario) — recomendado",
-            value: "behold",
-          },
-          { title: "Automática — Instagram Graph API (requiere token)", value: "instagram" },
-          { title: "Publicaciones por enlace (lista fija)", value: "posts" },
+          { title: "Publicaciones por enlace (sin token) — recomendado", value: "posts" },
+          { title: "Feed automático — Instagram Graph API (requiere token)", value: "instagram" },
           { title: "Manual (imágenes de abajo)", value: "manual" },
         ],
         layout: "radio",
       },
-      initialValue: "behold",
-    }),
-    defineField({
-      name: "beholdFeedUrl",
-      title: "URL del feed de Behold.so",
-      description:
-        "Crea una cuenta gratis en behold.so, conecta @academyglider y pega aquí la URL del feed JSON (https://feeds.behold.so/…). Se usa cuando la fuente es «Behold.so».",
-      type: "url",
-      hidden: ({ document }) => document?.source !== "behold",
+      initialValue: "posts",
     }),
     defineField({
       name: "maxItems",
@@ -132,9 +120,9 @@ export const gallerySettings = defineType({
     defineField({ name: "instagramCtaLabel", title: "Texto del botón “Ver más”", type: LS }),
     defineField({
       name: "instagramPostUrls",
-      title: "Publicaciones de Instagram (lista fija)",
+      title: "Publicaciones de Instagram",
       description:
-        "En Instagram: abre el post → menú “···” → “Copiar enlace”. Formato https://www.instagram.com/p/XXXX/ o /reel/XXXX/. Se usan cuando la fuente es «Publicaciones por enlace».",
+        "El orden aquí es el orden en la galería (arriba = primero). En Instagram: abre el post → «···» → «Copiar enlace». Vale /p/XXXX/ y /reel/XXXX/.",
       type: "array",
       of: [{ type: "url" }],
       validation: (r) => r.unique(),

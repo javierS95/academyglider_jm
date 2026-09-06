@@ -13,20 +13,17 @@ interface RawMedia {
   timestamp: string;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Portada de una publicación a partir de su URL — SIN token, sin API.
-// https://www.instagram.com/p/<code>/media/?size=l  redirige a la imagen (1080px).
-// Funciona para posts y reels (convirtiendo /reel/ → /p/). Se usa en la fuente "posts".
-// ─────────────────────────────────────────────────────────────────────────────
+/** Extrae el shortcode de cualquier URL de post/reel de Instagram. */
 export function instagramShortcode(url: string): string | null {
   const m = url.match(/instagram\.com\/(?:[^/]+\/)?(?:p|reel|tv)\/([A-Za-z0-9_-]+)/i);
   return m ? m[1] : null;
 }
 
-export function instagramCoverImage(shortcode: string): string {
-  return `https://www.instagram.com/p/${shortcode}/media/?size=l`;
-}
-
+/**
+ * Convierte una lista de URLs de publicaciones en items de galería.
+ * La imagen se sirve por nuestro proxy `/api/ig-image` (ver ese archivo).
+ * Sin token, sin servicios externos.
+ */
 export function postUrlsToItems(urls: string[]): GalleryItem[] {
   return urls
     .map((url) => {
@@ -34,42 +31,17 @@ export function postUrlsToItems(urls: string[]): GalleryItem[] {
       if (!code) return null;
       return {
         permalink: `https://www.instagram.com/p/${code}/`,
-        image: instagramCoverImage(code),
+        image: `/api/ig-image?code=${code}`,
         alt: "Publicación de @academyglider en Instagram",
       } satisfies GalleryItem;
     })
     .filter((x): x is GalleryItem => x !== null);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Behold.so — feed JSON automático (sin token, se refresca 1 vez al día en el
-// plan gratuito). El equipo conecta @academyglider en behold.so y pega la URL
-// del feed en el CMS. Behold se encarga del cumplimiento con Meta.
-// ─────────────────────────────────────────────────────────────────────────────
-interface BeholdPost {
-  permalink?: string;
-  mediaUrl?: string;
-  thumbnailUrl?: string;
-  caption?: string;
-  sizes?: { medium?: { mediaUrl?: string }; small?: { mediaUrl?: string } };
-}
-
-export async function fetchBeholdFeed(feedUrl: string, limit = 6): Promise<GalleryItem[]> {
-  const res = await fetch(feedUrl, { signal: AbortSignal.timeout(8000) });
-  if (!res.ok) throw new Error(`Behold ${res.status}: ${await res.text()}`);
-  const json = (await res.json()) as BeholdPost[] | { posts?: BeholdPost[] };
-  const posts = Array.isArray(json) ? json : (json.posts ?? []);
-  return posts.slice(0, limit).map((p) => ({
-    permalink: p.permalink || "https://www.instagram.com/academyglider/",
-    image: p.sizes?.medium?.mediaUrl || p.thumbnailUrl || p.mediaUrl || "",
-    alt: (p.caption || "Publicación de @academyglider en Instagram").slice(0, 160),
-  }));
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Instagram Graph API — feed automático oficial (requiere cuenta Business/Creator
-// + INSTAGRAM_USER_ID + INSTAGRAM_LONG_LIVED_TOKEN, con rotación cada 60 días).
-// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * Instagram Graph API — feed automático oficial (opcional). Requiere cuenta
+ * Business/Creator + INSTAGRAM_USER_ID + INSTAGRAM_LONG_LIVED_TOKEN.
+ */
 export async function fetchInstagramMedia(limit = 6): Promise<GalleryItem[]> {
   const userId = process.env.INSTAGRAM_USER_ID;
   const token = process.env.INSTAGRAM_LONG_LIVED_TOKEN;
