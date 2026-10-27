@@ -97,9 +97,14 @@ const homeHref = locale === "es" ? "/" : "/en/";
       </svg>
     </button>
   </div>
+</header>
 
-  <!-- Menú móvil -->
-  <div
+<!--
+  Menú móvil: va FUERA del <header> a propósito. Al hacer scroll la barra usa
+  backdrop-filter, que crea un containing block para los hijos `fixed`: el menú
+  quedaba recortado al alto de la barra y se veía transparente en el celular.
+-->
+<div
     id="mobile-menu"
     class="fixed inset-0 z-50 hidden flex-col bg-sky-900 px-6 pt-6 pb-10 text-white"
   >
@@ -138,7 +143,6 @@ const homeHref = locale === "es" ? "/" : "/en/";
       <a href={wa} target="_blank" rel="noopener" class="btn btn-primary text-sm">WhatsApp</a>
     </div>
   </div>
-</header>
 
 <style>
   /* En el tope, sobre el hero oscuro: texto blanco y fondo transparente.
@@ -151,7 +155,8 @@ const homeHref = locale === "es" ? "/" : "/en/";
     color: #fff;
   }
   #site-header[data-at-top="false"] {
-    background: rgba(250, 246, 240, 0.92);
+    background: rgba(250, 246, 240, 0.97);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     box-shadow: 0 1px 0 rgba(33, 29, 26, 0.08);
   }
