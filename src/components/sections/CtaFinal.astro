@@ -3,6 +3,7 @@ import type { Locale, SiteContent } from "@/types";
 import { pick } from "@/i18n/utils";
 import { whatsappLink } from "@/lib/whatsapp";
 import DemoBadge from "@/components/DemoBadge.astro";
+import CoverImage from "@/components/CoverImage.astro";
 
 interface Props {
   locale: Locale;
@@ -22,12 +23,12 @@ const bg = ctaFinal.backgroundMedia;
 <section id="contacto" class="relative overflow-hidden">
   {
     bg && (
-      <img
-        src={bg.url}
+      <CoverImage
+        image={bg}
         alt={pick(bg.alt, locale)}
-        loading="lazy"
-        decoding="async"
-        class="absolute inset-0 h-full w-full object-cover"
+        mobileRatio={4 / 5}
+        desktopRatio={21 / 9}
+        class="absolute inset-0 h-full w-full"
       />
     )
   }

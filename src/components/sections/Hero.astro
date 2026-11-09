@@ -4,6 +4,7 @@ import { pick } from "@/i18n/utils";
 import { useTranslations } from "@/i18n/ui";
 import { whatsappLink } from "@/lib/whatsapp";
 import DemoBadge from "@/components/DemoBadge.astro";
+import CoverImage from "@/components/CoverImage.astro";
 
 interface Props {
   locale: Locale;
@@ -25,12 +26,13 @@ const hero = home.heroMedia;
 <section id="inicio" class="relative flex min-h-[100svh] items-center overflow-hidden">
   {
     hero && (
-      <img
-        src={hero.url}
+      <CoverImage
+        image={hero}
         alt={pick(hero.alt, locale)}
-        class="absolute inset-0 h-full w-full object-cover"
-        fetchpriority="high"
-        decoding="async"
+        mobileRatio={9 / 16}
+        desktopRatio={16 / 9}
+        priority
+        class="absolute inset-0 h-full w-full"
       />
     )
   }
