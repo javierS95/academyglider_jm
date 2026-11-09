@@ -3,6 +3,7 @@ import type { Locale, SiteContent } from "@/types";
 import { pick } from "@/i18n/utils";
 import { whatsappLink } from "@/lib/whatsapp";
 import DemoBadge from "@/components/DemoBadge.astro";
+import CoverImage from "@/components/CoverImage.astro";
 
 interface Props {
   locale: Locale;
@@ -19,22 +20,32 @@ const wa = whatsappLink(
 const bg = ctaFinal.backgroundMedia;
 ---
 
-<section id="contacto" class="relative overflow-hidden">
+<!--
+  Proporción FIJA (4:5 celular / 21:9 computador), igual que el Hero: el div
+  `aria-hidden` da la forma y el contenido comparte la celda del grid.
+  Si cambias estas proporciones, cambia también las de <CoverImage> y la
+  descripción del campo en el Studio (studio/schemaTypes/singletons.ts).
+-->
+<section id="contacto" class="relative grid grid-cols-1 overflow-hidden">
+  <div aria-hidden="true" class="col-start-1 row-start-1 aspect-[4/5] md:aspect-[21/9]"></div>
   {
     bg && (
-      <img
-        src={bg.url}
+      <CoverImage
+        image={bg}
+        mobileImage={ctaFinal.backgroundMediaMobile}
         alt={pick(bg.alt, locale)}
-        loading="lazy"
-        decoding="async"
-        class="absolute inset-0 h-full w-full object-cover"
+        mobileRatio={4 / 5}
+        desktopRatio={21 / 9}
+        class="absolute inset-0 h-full w-full"
       />
     )
   }
   <div class="absolute inset-0 bg-gradient-to-t from-sky-900/85 via-sunset-600/40 to-sunset-500/50">
   </div>
 
-  <div class="container-page relative z-10 py-24 text-center text-white sm:py-32">
+  <div
+    class="container-page relative z-10 col-start-1 row-start-1 self-center py-16 text-center text-white sm:py-24"
+  >
     <DemoBadge locale={locale} when={settings.demoMode && ctaFinal.isDemo} class="mb-5" />
     <h2 class="mx-auto max-w-3xl text-4xl sm:text-5xl">{pick(ctaFinal.title, locale)}</h2>
     <p class="mx-auto mt-5 max-w-xl text-lg text-white/90">{pick(ctaFinal.text, locale)}</p>

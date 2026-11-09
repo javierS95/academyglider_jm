@@ -1,0 +1,107 @@
+---
+/**
+ * Imagen de fondo (object-cover) para secciones con proporción FIJA.
+ *
+ * La sección define una proporción para celular y otra para computador, y aquí
+ * se le pide a Sanity la foto recortada exactamente en esa proporción. Así el
+ * navegador no recorta nada extra y el encuadre es igual en todos los equipos.
+ * Nunca se estira: Sanity recorta (fit=crop), no deforma.
+ *
+ * - `image`: foto principal (computador, y también celular si no hay otra).
+ * - `mobileImage`: foto opcional sólo para celular.
+ * - Con punto focal (hotspot) marcado en el Studio: recorte centrado en él.
+ * - Sin punto focal (o el por defecto al centro): crop=entropy, Sanity elige
+ *   la zona con más detalle.
+ * - Foto local (modo DEMO): se usa tal cual.
+ */
+import type { ImageAsset } from "@/types";
+import { urlForImage } from "@/lib/sanity";
+
+interface Props {
+  image: ImageAsset;
+  mobileImage?: ImageAsset;
+  alt: string;
+  /** Proporción ancho/alto en celular (< 768px). Debe coincidir con la sección. */
+  mobileRatio: number;
+  /** Proporción ancho/alto en computador (≥ 768px). Debe coincidir con la sección. */
+  desktopRatio: number;
+  /** true = imagen principal (LCP): carga prioritaria, sin lazy. */
+  priority?: boolean;
+  class?: string;
+}
+
+const {
+  image,
+  mobileImage,
+  alt,
+  mobileRatio,
+  desktopRatio,
+  priority = false,
+  class: className,
+} = Astro.props;
+
+const MOBILE_WIDTHS = [480, 800, 1080];
+const DESKTOP_WIDTHS = [1280, 1920, 2560];
+
+// Sanity guarda un hotspot "por defecto" (centro, tamaño completo) apenas alguien
+// abre el editor de la imagen; ese caso cuenta como "sin marcar".
+const hasHotspot = (img: ImageAsset) => {
+  const h = img.hotspot;
+  return Boolean(
+    h && !(h.x === 0.5 && h.y === 0.5 && (h.width ?? 1) >= 1 && (h.height ?? 1) >= 1),
+  );
+};
+
+const isSanity = (img: ImageAsset): boolean =>
+  Boolean(img.asset?._ref) && urlForImage(img) !== null;
+
+const build = (img: ImageAsset, width: number, ratio: number) => {
+  let b = urlForImage(img)!
+    .width(width)
+    .height(Math.round(width / ratio))
+    .fit("crop")
+    .auto("format")
+    .quality(80);
+  if (!hasHotspot(img)) b = b.crop("entropy");
+  return b.url();
+};
+
+const srcset = (img: ImageAsset, widths: number[], ratio: number) =>
+  widths.map((w) => `${build(img, w, ratio)} ${w}w`).join(", ");
+
+const mobile = mobileImage?.url ? mobileImage : image;
+
+const loadAttrs = priority
+  ? { fetchpriority: "high" as const, loading: "eager" as const }
+  : { loading: "lazy" as const };
+const imgClass = ["object-cover", className];
+---
+
+<picture>
+  {
+    isSanity(image) ? (
+      <source
+        media="(min-width: 768px)"
+        srcset={srcset(image, DESKTOP_WIDTHS, desktopRatio)}
+        sizes="100vw"
+      />
+    ) : (
+      mobile !== image && <source media="(min-width: 768px)" srcset={image.url} />
+    )
+  }
+  {
+    isSanity(mobile) ? (
+      <img
+        src={build(mobile, MOBILE_WIDTHS[1], mobileRatio)}
+        srcset={srcset(mobile, MOBILE_WIDTHS, mobileRatio)}
+        sizes="100vw"
+        alt={alt}
+        decoding="async"
+        class:list={imgClass}
+        {...loadAttrs}
+      />
+    ) : (
+      <img src={mobile.url} alt={alt} decoding="async" class:list={imgClass} {...loadAttrs} />
+    )
+  }
+</picture>

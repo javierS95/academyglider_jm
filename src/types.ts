@@ -18,8 +18,12 @@ export interface ImageAsset {
   /** URL lista para usar (Sanity CDN o ruta local en modo DEMO). */
   url: string;
   alt: LocaleString;
-  /** Punto focal 0..1 para recortes responsive. */
-  hotspot?: { x: number; y: number };
+  /** Referencia al asset en Sanity (ausente en modo DEMO, donde `url` es local). */
+  asset?: { _ref: string; _type?: string };
+  /** Recorte marcado en el Studio (fracciones 0..1 desde cada borde). */
+  crop?: { top: number; bottom: number; left: number; right: number };
+  /** Punto focal marcado en el Studio (centro y tamaño en fracciones 0..1). */
+  hotspot?: { x: number; y: number; width?: number; height?: number };
 }
 
 export interface SiteSettings {
@@ -40,6 +44,8 @@ export interface HomeSection {
   secondaryCtaLabel: LocaleString;
   complementaryText: LocaleText;
   heroMedia?: ImageAsset;
+  /** Foto alternativa sólo para celular (opcional). */
+  heroMediaMobile?: ImageAsset;
   whatsappMessageOverride?: LocaleString;
 }
 
@@ -144,6 +150,8 @@ export interface CtaFinalSection {
   text: LocaleText;
   buttonLabel: LocaleString;
   backgroundMedia?: ImageAsset;
+  /** Foto alternativa sólo para celular (opcional). */
+  backgroundMediaMobile?: ImageAsset;
   whatsappMessageOverride?: LocaleString;
 }
 

@@ -29,11 +29,17 @@ export const sanityClient: SanityClient | null = sanityEnabled
 
 const builder = sanityClient ? imageUrlBuilder(sanityClient) : null;
 
-/** Proyección GROQ reutilizable para imágenes -> { url, alt, hotspot }. */
+/**
+ * Proyección GROQ reutilizable para imágenes.
+ * `asset` (la referencia), `crop` y `hotspot` completos son lo que necesita
+ * @sanity/image-url para respetar el recorte y el punto focal marcados en el Studio.
+ */
 const IMG = `{
   "url": asset->url,
   "alt": coalesce(alt, {"es": "", "en": ""}),
-  "hotspot": hotspot{ x, y }
+  asset,
+  crop,
+  hotspot
 }`;
 
 const SITE_QUERY = `{
@@ -43,7 +49,7 @@ const SITE_QUERY = `{
   },
   "home": *[_type == "homeSection"][0]{
     isDemo, title, subtitle, ctaLabel, secondaryCtaLabel, complementaryText,
-    "heroMedia": heroMedia${IMG}, whatsappMessageOverride
+    "heroMedia": heroMedia${IMG}, "heroMediaMobile": heroMediaMobile${IMG}, whatsappMessageOverride
   },
   "about": *[_type == "aboutSection"][0]{
     isDemo, heading, body, highlightNumber, highlightLabel, "photo": photo${IMG}
@@ -70,15 +76,15 @@ const SITE_QUERY = `{
     placeName, addressPending, address, mapEmbedUrl, latitude, longitude, navigationUrl, attentionNote
   },
   "ctaFinal": *[_type == "ctaFinalSection"][0]{
-    isDemo, title, text, buttonLabel, "backgroundMedia": backgroundMedia${IMG}, whatsappMessageOverride
+    isDemo, title, text, buttonLabel, "backgroundMedia": backgroundMedia${IMG}, "backgroundMediaMobile": backgroundMediaMobile${IMG}, whatsappMessageOverride
   },
   "footer": *[_type == "footerSettings"][0]{ tagline, showLegal, legalLinks },
   "headers": *[_type == "sectionHeaders"][0]{ courses, gallery, reviews, faq, location }
 }`;
 
+/** Builder de URLs de Sanity para una imagen, o null si el CMS no está configurado. */
 export function urlForImage(source: unknown) {
-  if (!builder) return { url: () => "" };
-  return builder.image(source as never);
+  return builder ? builder.image(source as never) : null;
 }
 
 /** Elimina recursivamente claves con valor null (GROQ las usa para campos vacíos). */

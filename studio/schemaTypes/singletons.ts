@@ -60,7 +60,20 @@ export const homeSection = defineType({
     defineField({ name: "ctaLabel", title: "Texto del botón principal (WhatsApp)", type: LS }),
     defineField({ name: "secondaryCtaLabel", title: "Texto del botón secundario", type: LS }),
     defineField({ name: "complementaryText", title: "Texto complementario", type: LT }),
-    defineField({ name: "heroMedia", title: "Imagen de fondo", ...IMG }),
+    defineField({
+      name: "heroMedia",
+      title: "Foto de portada (computador y celular)",
+      description:
+        "Se usa en computador y también en celular si no subes una foto para celular. Se muestra horizontal 16:9 en computador y vertical 2:3 en celular. El sitio la recorta solo (nunca la estira). Para elegir qué parte se ve: haz clic en la foto → ícono de recorte → arrastra el círculo sobre el piloto o la vela.",
+      ...IMG,
+    }),
+    defineField({
+      name: "heroMediaMobile",
+      title: "Foto de portada SOLO para celular (opcional)",
+      description:
+        "Déjala vacía para usar la misma foto de arriba. Súbela sólo si quieres otra foto en celulares. Se muestra vertical 2:3; idealmente una foto vertical.",
+      ...IMG,
+    }),
     defineField({
       name: "whatsappMessageOverride",
       title: "Mensaje de WhatsApp específico (opcional)",
@@ -195,7 +208,20 @@ export const ctaFinalSection = defineType({
     defineField({ name: "title", title: "Título", type: LS }),
     defineField({ name: "text", title: "Texto", type: LT }),
     defineField({ name: "buttonLabel", title: "Texto del botón", type: LS }),
-    defineField({ name: "backgroundMedia", title: "Imagen de fondo", ...IMG }),
+    defineField({
+      name: "backgroundMedia",
+      title: "Foto de fondo (computador y celular)",
+      description:
+        "Se usa en computador y también en celular si no subes una foto para celular. Se muestra muy horizontal 21:9 en computador y vertical 4:5 en celular. El sitio la recorta solo (nunca la estira). Para elegir qué parte se ve: haz clic en la foto → ícono de recorte → arrastra el círculo sobre el piloto o la vela.",
+      ...IMG,
+    }),
+    defineField({
+      name: "backgroundMediaMobile",
+      title: "Foto de fondo SOLO para celular (opcional)",
+      description:
+        "Déjala vacía para usar la misma foto de arriba. Súbela sólo si quieres otra foto en celulares. Se muestra vertical 4:5.",
+      ...IMG,
+    }),
     defineField({
       name: "whatsappMessageOverride",
       title: "Mensaje de WhatsApp específico (opcional)",
