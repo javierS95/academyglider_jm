@@ -23,13 +23,22 @@ const wa = whatsappLink(
 const hero = home.heroMedia;
 ---
 
-<section id="inicio" class="relative flex min-h-[100svh] items-center overflow-hidden">
+<!--
+  Proporción FIJA (2:3 celular / 16:9 computador) para que la foto se vea igual
+  en todos los equipos. El div `aria-hidden` da la forma; el contenido va en la
+  misma celda del grid, así que si no cabe la sección crece en vez de cortarlo.
+  Si cambias estas proporciones, cambia también las de <CoverImage> y la
+  descripción del campo en el Studio (studio/schemaTypes/singletons.ts).
+-->
+<section id="inicio" class="relative grid grid-cols-1 overflow-hidden">
+  <div aria-hidden="true" class="col-start-1 row-start-1 aspect-[2/3] md:aspect-video"></div>
   {
     hero && (
       <CoverImage
         image={hero}
+        mobileImage={home.heroMediaMobile}
         alt={pick(hero.alt, locale)}
-        mobileRatio={9 / 16}
+        mobileRatio={2 / 3}
         desktopRatio={16 / 9}
         priority
         class="absolute inset-0 h-full w-full"
@@ -42,7 +51,9 @@ const hero = home.heroMedia;
   >
   </div>
 
-  <div class="container-page relative z-10 py-28 text-white">
+  <div
+    class="container-page relative z-10 col-start-1 row-start-1 self-center pt-24 pb-16 text-white sm:py-28"
+  >
     <div class="max-w-2xl">
       <DemoBadge locale={locale} when={settings.demoMode && home.isDemo} class="mb-5" />
       <h1 class="text-4xl leading-[1.05] sm:text-6xl">{pick(home.title, locale)}</h1>

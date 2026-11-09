@@ -44,6 +44,8 @@ export interface HomeSection {
   secondaryCtaLabel: LocaleString;
   complementaryText: LocaleText;
   heroMedia?: ImageAsset;
+  /** Foto alternativa sólo para celular (opcional). */
+  heroMediaMobile?: ImageAsset;
   whatsappMessageOverride?: LocaleString;
 }
 
@@ -148,6 +150,8 @@ export interface CtaFinalSection {
   text: LocaleText;
   buttonLabel: LocaleString;
   backgroundMedia?: ImageAsset;
+  /** Foto alternativa sólo para celular (opcional). */
+  backgroundMediaMobile?: ImageAsset;
   whatsappMessageOverride?: LocaleString;
 }
 

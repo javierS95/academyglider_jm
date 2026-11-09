@@ -49,7 +49,7 @@ const SITE_QUERY = `{
   },
   "home": *[_type == "homeSection"][0]{
     isDemo, title, subtitle, ctaLabel, secondaryCtaLabel, complementaryText,
-    "heroMedia": heroMedia${IMG}, whatsappMessageOverride
+    "heroMedia": heroMedia${IMG}, "heroMediaMobile": heroMediaMobile${IMG}, whatsappMessageOverride
   },
   "about": *[_type == "aboutSection"][0]{
     isDemo, heading, body, highlightNumber, highlightLabel, "photo": photo${IMG}
@@ -76,7 +76,7 @@ const SITE_QUERY = `{
     placeName, addressPending, address, mapEmbedUrl, latitude, longitude, navigationUrl, attentionNote
   },
   "ctaFinal": *[_type == "ctaFinalSection"][0]{
-    isDemo, title, text, buttonLabel, "backgroundMedia": backgroundMedia${IMG}, whatsappMessageOverride
+    isDemo, title, text, buttonLabel, "backgroundMedia": backgroundMedia${IMG}, "backgroundMediaMobile": backgroundMediaMobile${IMG}, whatsappMessageOverride
   },
   "footer": *[_type == "footerSettings"][0]{ tagline, showLegal, legalLinks },
   "headers": *[_type == "sectionHeaders"][0]{ courses, gallery, reviews, faq, location }
